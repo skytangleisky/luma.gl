@@ -1,5 +1,7 @@
-import {ClassicAnimationLoop as AnimationLoop} from '@luma.gl/webgl-legacy';
+// luma.gl, MIT
+
 import {withParameters} from '@luma.gl/webgl';
+import {ClassicAnimationLoop as AnimationLoop} from '@luma.gl/webgl-legacy';
 
 export class Display {
   readonly animationLoop: AnimationLoop;

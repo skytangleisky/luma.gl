@@ -3,15 +3,17 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "noImplicitAny": false,
-    "strictNullChecks": false,
+    // "noImplicitAny": false,
+    // "strictNullChecks": false,
     "composite": true,
     "rootDir": "src",
     "outDir": "dist"
   },
   "references": [
     {"path": "../constants"},
+    {"path": "../api"},
     {"path": "../engine"},
+    {"path": "../shadertools"},
     {"path": "../webgl"}
   ]
 }

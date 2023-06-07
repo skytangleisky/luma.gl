@@ -5,8 +5,7 @@ import {WebGLDevice} from './webgl-device';
 import {WEBGLFramebuffer} from './resources/webgl-framebuffer';
 
 /** 
- * Holds a WebGL Canvas Context which will handle drawing buffer resizing etc 
- * @todo This class is WIP, intended to replace the old gltools-based context size tracking
+ * A WebGL Canvas Context which manages the canvas and handles drawing buffer resizing etc 
  */
 export class WebGLCanvasContext extends CanvasContext {
   readonly device: WebGLDevice;

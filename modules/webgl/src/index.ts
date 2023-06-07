@@ -33,7 +33,7 @@ export type {RenderbufferProps} from './adapter/objects/webgl-renderbuffer';
 export {WEBGLRenderbuffer} from './adapter/objects/webgl-renderbuffer';
 export {WEBGLVertexArrayObject} from './adapter/objects/webgl-vertex-array-object';
 
-// WebGL adapter classes (Legacy, will be moved to gltools)
+// WebGL adapter classes (Legacy, will be moved to webgl-legacy)
 export {Accessor} from './classic/accessor';
 export type {AccessorObject} from './types';
 export type {ClassicBufferProps, ClassicBufferProps as BufferProps} from './classic/buffer';
