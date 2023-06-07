@@ -276,7 +276,7 @@ export class AnimationLoop {
 
   _setDisplay(display: any) {
     if (this.display) {
-      this.display.delete();
+      this.display.destroy();
       this.display.animationLoop = null;
     }
 

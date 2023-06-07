@@ -189,7 +189,7 @@ Use with `Program.getParameter(parameter)`
 
 | Parameter                           | Type      | Description                                                                                                                                                        |
 | ----------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GL.DELETE_STATUS`                  | GLboolean | If true, program has been flagged for deletion (by calling `Program.delete()`), but the delete is pending because program is still part of current rendering state |
+| `GL.DELETE_STATUS`                  | GLboolean | If true, program has been flagged for deletion (by calling `Program.destroy()`), but the delete is pending because program is still part of current rendering state |
 | `GL.LINK_STATUS`                    | GLboolean | Indicates whether last link operation was successful. Program linking is performed by luma on program initialization                                               |
 | `GL.VALIDATE_STATUS`                | GLboolean | Result of last `gl.validateProgram()` operation                                                                                                                    |
 | `GL.ATTACHED_SHADERS`               | GLint     | Number of attached shaders (`0`, `1` or `2`)                                                                                                                       |

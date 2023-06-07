@@ -21,10 +21,10 @@ test('WebGL#Renderbuffer construct/delete', (t) => {
   const renderbuffer = new Renderbuffer(gl, {format: GL.DEPTH_COMPONENT16, width: 1, height: 1});
   t.ok(renderbuffer instanceof Renderbuffer, 'Renderbuffer construction successful');
 
-  renderbuffer.delete();
+  renderbuffer.destroy();
   t.ok(renderbuffer instanceof Renderbuffer, 'Renderbuffer delete successful');
 
-  renderbuffer.delete();
+  renderbuffer.destroy();
   t.ok(renderbuffer instanceof Renderbuffer, 'Renderbuffer repeated delete successful');
 
   t.end();
@@ -42,7 +42,7 @@ test('WebGL#Renderbuffer format creation', (t) => {
         format,
         `Renderbuffer(${getKey(gl, format)}) created with correct format`
       );
-      renderbuffer.delete();
+      renderbuffer.destroy();
     }
   }
 
@@ -67,7 +67,7 @@ test('WebGL2#Renderbuffer format creation', (t) => {
         format,
         `Renderbuffer(${getKey(gl2, format)}) created with correct format`
       );
-      renderbuffer.delete();
+      renderbuffer.destroy();
     }
   }
 

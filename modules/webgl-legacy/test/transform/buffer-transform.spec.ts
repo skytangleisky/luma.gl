@@ -126,7 +126,7 @@ test('WebGL#BufferTransform updateModelProps', (t) => {
   let {varyings} = bt.updateModelProps();
   t.deepEqual(varyings, cutomVaryings, 'should use custom varyings when provided');
 
-  bt.delete();
+  bt.destroy();
   bt = new BufferTransform(gl, {
     sourceBuffers: {
       source
@@ -143,7 +143,7 @@ test('WebGL#BufferTransform updateModelProps', (t) => {
     'should build varyings from feedbackBuffers when not provided'
   );
 
-  bt.delete();
+  bt.destroy();
   t.end();
 });
 

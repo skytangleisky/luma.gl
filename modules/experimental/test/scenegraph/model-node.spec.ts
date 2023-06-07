@@ -49,18 +49,18 @@ test('ModelNode#Model forwards', (t) => {
   const {gl} = fixture;
   const model = new Model(gl, {vs: DUMMY_VS, fs: DUMMY_FS});
   const resourceModel = new Model(gl, {vs: DUMMY_VS, fs: DUMMY_FS});
-  const resourceSpy = makeSpy(resourceModel, 'delete');
+  const resourceSpy = makeSpy(resourceModel, 'destroy');
   const managedResources = [resourceModel];
   const mNode = new ModelNode(model, {managedResources});
-  // make sure `delete` is the last method to call
-  const modelMethods = ['draw', 'setUniforms', 'setAttributes', 'updateModuleSettings', 'delete'];
+  // make sure `destroy` is the last method to call
+  const modelMethods = ['draw', 'setUniforms', 'setAttributes', 'updateModuleSettings', 'destroy'];
   modelMethods.forEach((methodName) => {
     const spy = makeSpy(model, methodName);
     mNode[methodName]();
     t.equal(spy.callCount, 1, `should forward ${methodName} to model`);
     spy.restore();
   });
-  t.equal(resourceSpy.callCount, 1, 'should call delete on managedResources');
+  t.equal(resourceSpy.callCount, 1, 'should call destroy on managedResources');
   resourceSpy.restore();
   t.end();
 });

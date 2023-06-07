@@ -160,8 +160,8 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   }
 
   override onFinalize() {
-    this.opaqueCubes.forEach((c) => c.delete());
-    this.transparentCubes.forEach((c) => c.delete());
+    this.opaqueCubes.forEach((c) => c.destroy());
+    this.transparentCubes.forEach((c) => c.destroy());
   }
 
   override onRender({device, aspect, tick}: AnimationProps) {

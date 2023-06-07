@@ -92,7 +92,7 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   override onFinalize() {
     this.model1.destroy();
     this.model2.destroy();
-    this.positionBuffer.delete();
+    this.positionBuffer.destroy();
   }
 
   override onRender({device}) {

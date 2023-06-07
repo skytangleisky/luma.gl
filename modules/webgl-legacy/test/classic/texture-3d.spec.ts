@@ -21,7 +21,7 @@ test('WebGL#Texture3D construct/delete', (t) => {
   /*
   let texture = new Texture3D(gl);
   t.ok(texture instanceof Texture3D, 'Texture3D construction successful');
-  texture.delete();
+  texture.destroy();
 
   gl.getError(); // Reset error
 
@@ -36,7 +36,7 @@ test('WebGL#Texture3D construct/delete', (t) => {
 
   t.ok(gl.getError() === gl.NO_ERROR, 'Texture3D construction with array produces no errors');
 
-  texture.delete();
+  texture.destroy();
   t.ok(!gl.isTexture(texture.handle), `Texture GL object was deleted`);
   t.ok(texture instanceof Texture3D, 'Texture3D delete successful');
 
@@ -53,8 +53,8 @@ test('WebGL#Texture3D construct/delete', (t) => {
 
   t.ok(gl.getError() === gl.NO_ERROR, 'Texture3D construction with buffer produces no errors');
 
-  texture.delete();
-  buffer.delete();
+  texture.destroy();
+  buffer.destroy();
   */
 
   t.end();

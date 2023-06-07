@@ -338,9 +338,6 @@ test('WebGLCanvasContext#getDevicePixelRatio', (t) => {
   ];
 
   TEST_CASES.forEach((tc) => {
-    if (canvasContext) {
-      configureCanvasContext(canvasContext, tc);
-    }
     t.equal(canvasContext?.getDevicePixelRatio(tc.useDevicePixels), tc.expected, tc.name);
   });
   t.end();

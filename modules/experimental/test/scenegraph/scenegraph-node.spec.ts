@@ -24,7 +24,7 @@ test('ScenegraphNode#constructor', (t) => {
 
 test('ScenegraphNode#delete', (t) => {
   const sgNode = new ScenegraphNode();
-  t.doesNotThrow(() => sgNode.delete(), 'delete should work');
+  t.doesNotThrow(() => sgNode.destroy(), 'delete should work');
 
   t.end();
 });

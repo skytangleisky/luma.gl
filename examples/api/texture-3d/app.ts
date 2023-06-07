@@ -1,9 +1,7 @@
-/*
-  Ported from PicoGL.js example: https://tsherif.github.io/picogl.js/examples/3Dtexture.html
-*/
+// Ported from PicoGL.js example: https://tsherif.github.io/picogl.js/examples/3Dtexture.html
 
 import {getRandom, glsl} from '@luma.gl/api';
-import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
+import {AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
 import {GL, setParameters, clear} from '@luma.gl/webgl-legacy';
 import {Matrix4, radians} from '@math.gl/core';
 import {perlin, lerp, shuffle, range} from './perlin';
@@ -167,9 +165,4 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     });
     this.cloud.draw();
   }
-}
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  makeAnimationLoop(AppAnimationLoopTemplate).start();
 }

@@ -30,10 +30,10 @@ function testQueryConstructDelete(gl, t) {
   const timerQuery = new Query(gl);
   t.ok(timerQuery, 'Query construction successful');
 
-  timerQuery.delete();
+  timerQuery.destroy();
   t.ok(timerQuery instanceof Query, 'Query delete successful');
 
-  timerQuery.delete();
+  timerQuery.destroy();
   t.ok(timerQuery instanceof Query, 'Query repeated delete successful');
 
   t.end();

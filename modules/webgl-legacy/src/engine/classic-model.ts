@@ -261,7 +261,7 @@ export default class Model {
     // TODO - should buffer deletes be handled by vertex array?
     for (const key in this._attributes) {
       if (this._attributes[key] !== this.attributes[key]) {
-        this._attributes[key].delete();
+        this._attributes[key].destroy();
       }
     }
 
@@ -270,7 +270,7 @@ export default class Model {
       this._managedProgram = false;
     }
 
-    this.vertexArray.delete();
+    this.vertexArray.destroy();
 
     this._deleteGeometryBuffers();
   }

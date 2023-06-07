@@ -19,10 +19,10 @@ test('WebGL#TextureCube construct/delete', (t) => {
 
   t.comment(JSON.stringify(texture.getParameters({keys: true})));
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof TextureCube, 'TextureCube delete successful');
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof TextureCube, 'TextureCube repeated delete successful');
 
   t.end();
@@ -32,10 +32,10 @@ test('WebGL#TextureCube buffer update', (t) => {
   const {gl} = fixture;
 
   let texture = new TextureCube(gl);
-  t.ok(texture instanceof TextureCube, 'TextureCube construction successful');
+  t.ok(texture instanceof TextureCube && texture.handle, 'TextureCube construction successful');
 
-  texture = texture.delete();
-  t.ok(texture instanceof TextureCube, 'TextureCube delete successful');
+  texture.destroy();
+  t.ok(texture instanceof TextureCube && !texture.handle, 'TextureCube delete successful');
 
   t.end();
 });

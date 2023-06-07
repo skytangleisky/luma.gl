@@ -131,13 +131,12 @@ export class WEBGLTexture extends Texture {
   readonly gl2: WebGL2RenderingContext | null;
   readonly handle: WebGLTexture;
 
-  data;
+  /** Sampler object (currently unused) */
+  sampler: WEBGLSampler = undefined;
 
-  width: number = undefined;
-  height: number = undefined;
-  depth: number = undefined;
+  // data;
 
-  format: GL = undefined;
+  glFormat: GL = undefined;
   type: GL = undefined;
   dataFormat: GL = undefined;
   mipmaps: boolean = undefined;
@@ -154,9 +153,6 @@ export class WEBGLTexture extends Texture {
   target: GL;
   textureUnit: number = undefined;
 
-  /** Sampler object (currently unused) */
-  sampler: WEBGLSampler = undefined;
-
   /**
    * Program.draw() checks the loaded flag of all textures to avoid
    * Textures that are still loading from promises
@@ -170,7 +166,7 @@ export class WEBGLTexture extends Texture {
   };
 
   constructor(device: Device, props: TextureProps) {
-    super(device, {format: GL.RGBA, ...props});
+    super(device, {format: 'rgba8unorm', ...props});
 
     this.device = cast<WebGLDevice>(device);
     this.gl = this.device.gl;
@@ -178,6 +174,7 @@ export class WEBGLTexture extends Texture {
     this.handle = this.props.handle || this.gl.createTexture();
     this.device.setSpectorMetadata(this.handle, {...this.props, data: typeof this.props.data}); // {name: this.props.id};
 
+    this.glFormat = GL.RGBA;
     this.target = getWebGLTextureTarget(this.props);
 
     // Program.draw() checks the loaded flag of all textures
@@ -240,7 +237,7 @@ export class WEBGLTexture extends Texture {
     const {parameters = {}  as Record<GL, any>} = props;
 
     const {
-      pixels = null, recreate = false, pixelStore = {}, textureUnit = undefined} = props;
+      pixels = null, pixelStore = {}, textureUnit = undefined} = props;
 
     // pixels variable is for API compatibility purpose
     if (!data) {
@@ -253,6 +250,8 @@ export class WEBGLTexture extends Texture {
     let {width, height, dataFormat, type, compressed = false, mipmaps = true} = props;
     const {depth = 0} = props;
 
+    const glFormat = getWebGLTextureFormat(this.gl, props.format);
+
     // Deduce width and height
     ({width, height, compressed, dataFormat, type} = this._deduceParameters({
       format: props.format,
@@ -264,13 +263,11 @@ export class WEBGLTexture extends Texture {
       height
     }));
 
-    const format = getWebGLTextureFormat(this.gl, props.format);
-
     // Store opts for accessors
     this.width = width;
     this.height = height;
-    this.depth = depth;
-    this.format = format;
+    // this.depth = depth;
+    this.glFormat = glFormat;
     this.type = type;
     this.dataFormat = dataFormat;
     this.textureUnit = textureUnit;
@@ -292,7 +289,7 @@ export class WEBGLTexture extends Texture {
       width,
       height,
       depth,
-      format,
+      format: glFormat,
       type,
       dataFormat,
       // @ts-expect-error 
@@ -308,10 +305,6 @@ export class WEBGLTexture extends Texture {
       this.generateMipmap();
     }
 
-    // TODO - Store data to enable auto recreate on context loss
-    if (recreate) {
-      this.data = data;
-    }
     if (isVideo) {
       this._video = {
         video: data as HTMLVideoElement,

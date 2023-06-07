@@ -207,8 +207,3 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     }
   }
 }
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  makeAnimationLoop(AppAnimationLoopTemplate).start();
-}

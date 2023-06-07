@@ -59,10 +59,10 @@ test('WebGL#TransformFeedback constructor/delete', (t) => {
   const tf = new TransformFeedback(gl2);
   t.ok(tf instanceof TransformFeedback, 'TransformFeedback construction successful');
 
-  tf.delete();
+  tf.destroy();
   t.ok(tf instanceof TransformFeedback, 'TransformFeedback delete successful');
 
-  tf.delete();
+  tf.destroy();
   t.ok(tf instanceof TransformFeedback, 'TransformFeedback repeated delete successful');
 
   t.end();

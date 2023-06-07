@@ -19,7 +19,6 @@ import {cloneTextureFrom} from '../webgl-utils/texture-utils';
 import type {TransformProps, TransformDrawOptions} from './transform';
 import {updateForTextures, getSizeUniforms} from './transform-shader-utils';
 
-
 // TODO: move these constants to transform-shader-utils
 // Texture parameters needed so sample can precisely pick pixel for given element id.
 const SRC_TEX_PARAMETER_OVERRIDES = {
@@ -59,6 +58,21 @@ export default class TextureTransform {
     this.gl = gl;
     this._initialize(props);
     Object.seal(this);
+  }
+
+  // Delete owned resources.
+  destroy() {
+    if (this.ownTexture) {
+      this.ownTexture.destroy();
+    }
+    if (this.elementIDBuffer) {
+      this.elementIDBuffer.destroy();
+    }
+  }
+
+  /** @deprecated Use .destroy() */
+  delete(): void {
+    this.destroy();
   }
 
   updateModelProps(props: TransformProps = {}) {
@@ -145,16 +159,6 @@ export default class TextureTransform {
   getFramebuffer() {
     const currentResources = this.bindings[this.currentIndex];
     return currentResources.framebuffer;
-  }
-
-  // Delete owned resources.
-  delete() {
-    if (this.ownTexture) {
-      this.ownTexture.delete();
-    }
-    if (this.elementIDBuffer) {
-      this.elementIDBuffer.delete();
-    }
   }
 
   // Private
@@ -293,9 +297,10 @@ export default class TextureTransform {
     }
   }
 
-  _swapTextures(
-    opts: {sourceTextures: Record<string, Texture2D>; targetTexture: Texture2D}
-  ): {sourceTextures: Record<string, Texture2D>; targetTexture: Texture2D} | null {
+  _swapTextures(opts: {
+    sourceTextures: Record<string, Texture2D>;
+    targetTexture: Texture2D;
+  }): {sourceTextures: Record<string, Texture2D>; targetTexture: Texture2D} | null {
     if (!this._swapTexture) {
       return null;
     }
@@ -323,7 +328,7 @@ export default class TextureTransform {
 
     // thre can only be one target texture
     if (this.ownTexture) {
-      this.ownTexture.delete();
+      this.ownTexture.destroy();
     }
     this.ownTexture = texture;
 
@@ -358,7 +363,7 @@ export default class TextureTransform {
     const modules =
       this.hasSourceTextures || this.targetTextureVarying
         ? // @ts-expect-error
-        [transformModule].concat(props.modules || [])
+          [transformModule].concat(props.modules || [])
         : props.modules;
     return {vs, fs, modules, uniforms, inject: combinedInject};
   }

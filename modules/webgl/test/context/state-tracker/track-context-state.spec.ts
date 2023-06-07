@@ -230,6 +230,6 @@ test('WebGLState#not cached parameters', (t) => {
   tex.unbind();
   t.is(gl.getParameter(gl.TEXTURE_BINDING_2D), null, 'no binding for texture0');
 
-  tex.delete();
+  tex.destroy();
   t.end();
 });

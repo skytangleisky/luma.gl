@@ -77,15 +77,20 @@ export default class VertexArray {
     Object.seal(this);
   }
 
-  delete(): void {
+  destroy(): void {
     if (this.buffer) {
       this.buffer.destroy();
     }
 
     if (this.handle) {
-      this.vertexArrayObject.delete();
+      this.vertexArrayObject.destroy();
       this.handle = null;
     }
+  }
+
+  /** @deprecated Use .destroy() */
+  delete(): void {
+    this.destroy();
   }
 
   initialize(props?: VertexArrayProps) {

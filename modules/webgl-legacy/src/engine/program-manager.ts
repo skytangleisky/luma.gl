@@ -152,7 +152,7 @@ export default class ProgramManager {
     this._useCounts[hash]--;
 
     if (this._useCounts[hash] === 0) {
-      this._programCache[hash].delete();
+      this._programCache[hash].destroy();
       delete this._programCache[hash];
       delete this._getUniforms[hash];
       delete this._useCounts[hash];

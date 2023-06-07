@@ -1,7 +1,5 @@
 import {Buffer} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
-// import {Buffer, luma} from '@luma.gl/api';
-// import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
 import {clear} from '@luma.gl/webgl-legacy';
 
 const INFO_HTML = `

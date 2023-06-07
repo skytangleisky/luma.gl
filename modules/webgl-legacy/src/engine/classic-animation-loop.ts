@@ -403,7 +403,7 @@ export default class ClassicAnimationLoop {
 
   _setDisplay(display: any) {
     if (this.display) {
-      this.display.delete();
+      this.display.destroy();
       this.display.animationLoop = null;
     }
 

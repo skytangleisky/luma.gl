@@ -69,7 +69,8 @@ export class GPUPointInPolygon {
 
     // texture to render polygons to
     this.polygonTexture = new Texture2D(gl, {
-      format: GL.RGB,
+      // @ts-expect-error TODO rewrite with Texture
+      format: 'GL.RGB',
       type: GL.UNSIGNED_BYTE,
       dataFormat: GL.RGB,
       border: 0,

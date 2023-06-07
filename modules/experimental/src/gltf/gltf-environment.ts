@@ -37,17 +37,17 @@ export class GLTFEnvironment {
 
   destroy(): void {
     if (this._DiffuseEnvSampler) {
-      this._DiffuseEnvSampler.delete();
+      this._DiffuseEnvSampler.destroy();
       this._DiffuseEnvSampler = null;
     }
 
     if (this._SpecularEnvSampler) {
-      this._SpecularEnvSampler.delete();
+      this._SpecularEnvSampler.destroy();
       this._SpecularEnvSampler = null;
     }
 
     if (this._BrdfTexture) {
-      this._BrdfTexture.delete();
+      this._BrdfTexture.destroy();
       this._BrdfTexture = null;
     }
   }

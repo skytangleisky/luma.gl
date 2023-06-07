@@ -3,7 +3,7 @@ import {VERSION} from '../init';
 import {StatsManager, lumaStats} from '../lib/utils/stats-manager';
 import {log} from '../lib/utils/log';
 import {uid} from '../lib/utils/utils';
-import {TextureFormat} from './types/texture-formats';
+import type {TextureFormat} from './types/texture-formats';
 import type {CanvasContext, CanvasContextProps} from './canvas-context';
 import type {BufferProps} from './resources/buffer';
 import {Buffer} from './resources/buffer';
@@ -16,6 +16,7 @@ import type {ExternalTexture, ExternalTextureProps} from './resources/external-t
 import type {Framebuffer, FramebufferProps} from './resources/framebuffer';
 import type {RenderPass, RenderPassProps} from './resources/render-pass';
 import type {ComputePass, ComputePassProps} from './resources/compute-pass';
+import type {CommandEncoder, CommandEncoderProps} from './resources/command-encoder';
 
 /** Device properties */
 export type DeviceProps = {
@@ -253,29 +254,10 @@ export abstract class Device {
   // Resource creation
 
   /** Create a buffer */
-  createBuffer(props: BufferProps): Buffer;
-  createBuffer(data: ArrayBuffer | ArrayBufferView): Buffer;
-
-  createBuffer(props: BufferProps | ArrayBuffer | ArrayBufferView): Buffer {
-    if (props instanceof ArrayBuffer || ArrayBuffer.isView(props)) {
-      return this._createBuffer({data: props});
-    }
-
-    // TODO - fragile, as this is done before we merge with default options
-    // inside the Buffer constructor
-
-    // Deduce indexType
-    if ((props.usage || 0) & Buffer.INDEX && !props.indexType) {
-      if (props.data instanceof Uint32Array) {
-        props.indexType = 'uint32';
-      } else if (props.data instanceof Uint16Array) {
-        props.indexType = 'uint16';
-      }
-    }
-    return this._createBuffer(props);
-  }
+  abstract createBuffer(props: BufferProps | ArrayBuffer | ArrayBufferView): Buffer;
 
   /** Create a texture */
+  abstract _createTexture(props: TextureProps): Texture;
   createTexture(props: TextureProps): Texture;
   createTexture(data: Promise<TextureData>): Texture;
   createTexture(url: string): Texture;
@@ -305,6 +287,10 @@ export abstract class Device {
   /** Create a compute pipeline (aka program) */
   abstract createComputePipeline(props: ComputePipelineProps): ComputePipeline;
 
+  createCommandEncoder(props: CommandEncoderProps): CommandEncoder {
+    throw new Error('not implemented');
+  }
+
   /** Create a RenderPass */
   abstract beginRenderPass(props: RenderPassProps): RenderPass;
 
@@ -313,8 +299,25 @@ export abstract class Device {
 
   abstract getDefaultRenderPass(): RenderPass;
 
-  // Implementation
+  // Resource creation helpers
+  protected _getBufferProps(props: BufferProps | ArrayBuffer | ArrayBufferView): BufferProps {
 
-  protected abstract _createBuffer(props: BufferProps): Buffer;
-  protected abstract _createTexture(props: TextureProps): Texture;
+    if (props instanceof ArrayBuffer || ArrayBuffer.isView(props)) {
+      return {data: props};
+    }
+
+    // TODO - fragile, as this is done before we merge with default options
+    // inside the Buffer constructor
+
+    const newProps = {...props};
+    // Deduce indexType
+    if ((props.usage || 0) & Buffer.INDEX && !props.indexType) {
+      if (props.data instanceof Uint32Array) {
+        props.indexType = 'uint32';
+      } else if (props.data instanceof Uint16Array) {
+        props.indexType = 'uint16';
+      }
+    }
+    return newProps;    
+  }
 }

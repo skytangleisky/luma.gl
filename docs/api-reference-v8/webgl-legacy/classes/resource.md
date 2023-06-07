@@ -18,7 +18,7 @@ Deleting a resource
 
 ```typescript
 const resource = new Buffer(gl);
-resource.delete();
+resource.destroy();
 ```
 
 Getting parameters

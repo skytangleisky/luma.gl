@@ -171,8 +171,3 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     this.prism.draw();
   }
 }
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  makeAnimationLoop(AppAnimationLoopTemplate).start();
-}

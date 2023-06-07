@@ -43,7 +43,7 @@ vertexArray.setBuffer(location, buffer);
 Deleting a VertexArray
 
 ```typescript
-vertexArrayObject.delete();
+vertexArrayObject.destroy();
 ```
 
 Setting a constant vertex attribute

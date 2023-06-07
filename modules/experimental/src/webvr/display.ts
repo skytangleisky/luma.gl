@@ -9,6 +9,8 @@ export class Display {
     this.animationLoop = null;
   }
 
+  destroy(): void {}
+  /** @deprecated use .delete() */
   delete(): void {}
 
   getViews(options): {

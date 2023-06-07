@@ -91,9 +91,9 @@ class CustomLayer {
 
   onRemove(): void {
     // Cleanup
-    this.positionBuffer.delete();
-    this.colorBuffer.delete();
-    this.model.delete();
+    this.positionBuffer.destroy();
+    this.colorBuffer.destroy();
+    this.model.destroy();
   }
 }
 

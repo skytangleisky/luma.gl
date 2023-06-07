@@ -24,6 +24,7 @@ export class WebGLCanvasContext extends CanvasContext {
 
   getCurrentFramebuffer(): WEBGLFramebuffer {
     this.update();
+    // Setting handle to null returns a reference to the default framebuffer
     this._framebuffer = this._framebuffer || new WEBGLFramebuffer(this.device, {handle: null});
     return this._framebuffer;
   }

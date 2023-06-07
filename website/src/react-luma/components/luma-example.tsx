@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from 'react'; // eslint-disable-line
+import React, {FC, useEffect, useRef, useState, useCallback} from 'react'; // eslint-disable-line
 import {isBrowser} from '@probe.gl/env';
 import {luma, setPathPrefix} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationLoop, makeAnimationLoop} from '@luma.gl/engine';
@@ -14,7 +14,6 @@ const GITHUB_TREE = 'https://github.com/visgl/luma.gl/tree/8.5-release';
 // if (!globalThis.navigator) {// eslint-disable-line
 //   globalThis.navigator = {};// eslint-disable-line
 // }
-
 
 if (typeof window !== 'undefined') {
   window.website = true;
@@ -45,18 +44,18 @@ type LumaExampleProps = {
   AnimationLoopTemplate: typeof AnimationLoopTemplate;
   exampleConfig: unknown;
   name: string;
+  style?: CSSStyleDeclaration;
+  container?: string;
 };
 
 const defaultProps = {
   name: 'luma-example'
 };
 
-
 const state = {
   supported: true,
   error: null
 };
-
 
 // const FancyDiv = React.forwardRef<HTMLElement>((props, ref) => (
 //   <div ref={ref} className="FancyDiv"></div>
@@ -64,56 +63,119 @@ const state = {
 
 let created = false;
 
-export const LumaExample: FC<LumaExampleProps> = (props) => {
+export const LumaExample: FC<LumaExampleProps> = props => {
   let containerName = 'ssr';
-  
-  if (isBrowser()) {
 
-    const type = useStore(store => store.deviceType);
-    containerName = `${props.name}-container-${type}`;
+  if (!isBrowser()) {
+    return <canvas />;
+  }
 
-    useEffect(() => {
+  let animationLoop: AnimationLoop | null = null;
+  const callbackRef = useCallback((canvas: HTMLCanvasElement) => {
+    console.error(`rendering luma example ${canvas.id}`); // , ref.current);
+    if (created) {
+      return;
+    }
+    created = true;
 
+    if (canvas) {
+      const device = luma.createDevice({type, canvas});
+      device.then(_device => {
+        const canvas = _device.canvasContext?.htmlCanvas;
+        if (canvas) {
+          canvas.style.width = '100vw';
+        }
+      });
       let animationLoop: AnimationLoop | null = null;
 
-      console.error(`creating device ` + containerName); // , ref.current);
-      if(created) {
-        return;
-      }
-      created = true;
-
-      const device = luma.createDevice({type, container: containerName});
-      animationLoop = makeAnimationLoop(props.AnimationLoopTemplate, {device});
+      animationLoop = makeAnimationLoop(props.AnimationLoopTemplate, {
+        device,
+        autoResizeViewport: true,
+        autoResizeDrawingBuffer: true
+      });
 
       // Start the actual example
       animationLoop?.start();
 
       // Ensure the example can find its images
-      const RAW_GITHUB = 'https://raw.githubusercontent.com/uber/luma.gl/8.5-release';
+      const RAW_GITHUB = 'https://raw.githubusercontent.com/visgl/luma.gl/master';
       // const {exampleConfig} = this.props;
       if (props.name) {
         setPathPrefix(`${RAW_GITHUB}/examples/getting-started/${props.name}/`);
       } else {
         setPathPrefix(`${RAW_GITHUB}/website/static/images/`);
       }
+    } else {
+      console.error(`unmounting example ${props.name}`); // , ref.current);
+      if (!created) {
+        return;
+      }
+      created = false;
+      animationLoop?.stop();
+      animationLoop?.destroy();
+      // device.destroy();
+    }
+  }, []);
 
-      return function unmount() {
-        console.error(`unmounting device ` + containerName); // , ref.current);
-        if(created) {
-          return;
-        }
-        created = true;
-  
-        animationLoop?.stop();
-        animationLoop?.destroy();
-        // device.destroy();
+  const type = useStore(store => store.deviceType);
+  containerName = props.container || `luma-example-container-${type}`;
+
+  /*
+  useEffect(() => {
+    if (created) {
+      return;
+    }
+
+    const canvas = canvasRef.current!;
+    if (!canvas) {
+      return;
+    }
+
+    console.error(`creating device in canvas ${canvasRef.current}`); // , ref.current);
+
+    created = true;
+
+    const device = luma.createDevice({type, canvas});
+    device.then(_device => {
+      const canvas = _device.canvasContext?.htmlCanvas;
+      if (canvas) {
+        canvas.style.width = '100vw';
       }
     });
-  }
-      
-  return (<div id={containerName} style={{width: 800, height: 600}} />);
-}
+    let animationLoop: AnimationLoop | null = null;
 
+    animationLoop = makeAnimationLoop(props.AnimationLoopTemplate, {device});
+
+    // Start the actual example
+    animationLoop?.start();
+
+    // Ensure the example can find its images
+    const RAW_GITHUB = 'https://raw.githubusercontent.com/visgl/luma.gl/master';
+    // const {exampleConfig} = this.props;
+    if (props.name) {
+      setPathPrefix(`${RAW_GITHUB}/examples/getting-started/${props.name}/`);
+    } else {
+      setPathPrefix(`${RAW_GITHUB}/website/static/images/`);
+    }
+
+    return function unmount() {
+      console.error(`unmounting device ` + containerName); // , ref.current);
+      if(created) {
+        return;
+      }
+      created = false;
+
+      animationLoop?.stop();
+      animationLoop?.destroy();
+      // device.destroy();
+    }
+  }, [canvasRef]);
+  */
+
+  return <canvas ref={callbackRef} />;
+};
+
+/*
 
     // const {showStats} = this.props;
 

@@ -69,10 +69,6 @@ export abstract class WebGLResource<Props extends ResourceProps> extends Resourc
     return this._handle;
   }
 
-  override destroy(): void {
-    this.delete();
-  }
-
   override delete({deleteChildren = false} = {}) {
     // Delete this object, and get refs to any children
     // @ts-expect-error
@@ -86,7 +82,7 @@ export abstract class WebGLResource<Props extends ResourceProps> extends Resourc
     // @ts-expect-error
     if (children && deleteChildren) {
       // @ts-expect-error
-      children.filter(Boolean).forEach((child) => child.delete());
+      children.filter(Boolean).forEach((child) => child.destroy());
     }
 
     return this;

@@ -113,10 +113,10 @@ test('WebGL#Transform constructor/delete', (t) => {
 
   t.ok(transform instanceof Transform, 'Transform construction successful');
 
-  transform.delete();
+  transform.destroy();
   t.ok(transform instanceof Transform, 'Transform delete successful');
 
-  transform.delete();
+  transform.destroy();
   t.ok(transform instanceof Transform, 'Transform repeated delete successful');
 
   t.end();
@@ -477,7 +477,7 @@ test('WebGL#Transform update', (t) => {
   t.deepEqual(outData, expectedData, 'Transform.getData: is successful');
 
   sourceData = new Float32Array([1, 2, 3, 0, -5]);
-  sourceBuffer.delete();
+  sourceBuffer.destroy();
   sourceBuffer = new Buffer(gl2, {data: sourceData});
 
   transform.update({
@@ -493,7 +493,7 @@ test('WebGL#Transform update', (t) => {
   t.deepEqual(outData, expectedData, 'Transform.getData: is successful');
 
   sourceData = new Float32Array([3, 4, 5, 2, -3, 0]);
-  sourceBuffer.delete();
+  sourceBuffer.destroy();
   sourceBuffer = new Buffer(gl2, {data: sourceData});
 
   transform.update({
@@ -942,9 +942,9 @@ test('WebGL#Transform update (source&destination texture)', t => {
         expectedData,
         `${name} Transform should write correct data into Texture`
       );
-      sourceTexture.delete();
-      updateTexture.delete();
-      transform.delete();
+      sourceTexture.destroy();
+      updateTexture.destroy();
+      transform.destroy();
       const endCounts = getResourceCounts();
       validateResourceCounts(t, startCounts, endCounts);
     });
@@ -1039,7 +1039,7 @@ test('WebGL#Transform run (offline rendering)', (t) => {
     });
     t.ok(testPassed, `${name} Transform should write correct data into Texture`);
 
-    transform.delete();
+    transform.destroy();
   });
 
   t.end();
@@ -1190,8 +1190,8 @@ void main()
 
     t.deepEqual(outTexData, expectedData, `${name} Transform swap Textures`);
 
-    sourceTexture.delete();
-    transform.delete();
+    sourceTexture.destroy();
+    transform.destroy();
     const endCounts = getResourceCounts();
     validateResourceCounts(t, startCounts, endCounts);
     t.end();

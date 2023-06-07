@@ -102,10 +102,10 @@ test('WebGL#Texture2D construct/delete', (t) => {
 
   t.comment(JSON.stringify(texture.getParameters({keys: true})));
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D repeated delete successful');
 
   t.end();
@@ -206,7 +206,7 @@ function testFormatCreation(t, glContext, withData = false) {
         //     type
         //   )}, dataFormat: ${getKey(gl, options.dataFormat)}) created`
         // );
-        texture.delete();
+        texture.destroy();
       }
     }
   }
@@ -229,7 +229,7 @@ function testFormatDeduction(t, glContext) {
       t.equals(texture.format, Number(format), msg);
       t.equals(texture.type, expectedType, msg);
       t.equals(texture.dataFormat, expectedDataFormat, msg);
-      texture.delete();
+      texture.destroy();
     }
   }
 }
@@ -276,7 +276,7 @@ test('WebGL#Texture2D WebGL1 extension format creation', t => {
   let texture = new Texture2D(gl, {});
   t.ok(texture instanceof Texture2D, 'Texture2D construction successful');
 
-  texture = texture.delete();
+  texture = texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
   t.end();
@@ -293,7 +293,7 @@ test('WebGL#Texture2D WebGL2 format creation', t => {
   let texture = new Texture2D(gl, {});
   t.ok(texture instanceof Texture2D, 'Texture2D construction successful');
 
-  texture = texture.delete();
+  texture = texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
   t.end();
@@ -320,7 +320,7 @@ test('WebGL#Texture2D setParameters', (t) => {
     `Texture2D.setParameters({[${getKey(gl, parameter)}]: ${getKey(gl, value)}})`);
   */
 
-  texture = texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
   t.end();
@@ -340,7 +340,7 @@ test('WebGL2#Texture2D setParameters', (t) => {
 
   testSamplerParameters({t, texture, parameters: SAMPLER_PARAMETERS_WEBGL2});
 
-  texture = texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
   t.end();

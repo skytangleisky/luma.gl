@@ -17,10 +17,10 @@ test('WebGL#VertexArray construct/delete', (t) => {
   const vao = new VertexArray(gl);
   t.ok(vao instanceof VertexArray, 'VertexArray construction successful');
 
-  vao.delete();
+  vao.destroy();
   t.ok(vao instanceof VertexArray, 'VertexArray delete successful');
 
-  vao.delete();
+  vao.destroy();
   t.ok(vao instanceof VertexArray, 'VertexArray repeated delete successful');
 
   t.end();

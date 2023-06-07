@@ -18,10 +18,10 @@ test('WebGL#Texture2D construct/delete', (t) => {
 
   t.comment(JSON.stringify(texture.getParameters({keys: true})));
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
-  texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D repeated delete successful');
 
   t.end();
@@ -33,7 +33,7 @@ test('WebGL#Texture2D async constructor', (t) => {
   let texture = new Texture2D(gl);
   t.ok(texture instanceof Texture2D, 'Synchronous Texture2D construction successful');
   t.equal(texture.loaded, true, 'Sync Texture2D marked as loaded');
-  texture.delete();
+  texture.destroy();
 
   let loadCompleted;
   const loadPromise = new Promise((resolve) => {
@@ -58,7 +58,7 @@ test('WebGL#Texture2D buffer update', (t) => {
   let texture = new Texture2D(gl);
   t.ok(texture instanceof Texture2D, 'Texture2D construction successful');
 
-  texture = texture.delete();
+  texture.destroy();
   t.ok(texture instanceof Texture2D, 'Texture2D delete successful');
 
   t.end();

@@ -103,10 +103,10 @@ export default class VertexArrayObject extends WEBGLVertexArrayObject {
     Object.seal(this);
   }
 
-  override delete(): this {
-    super.delete();
+  override destroy(): this {
+    super.destroy();
     if (this.buffer) {
-      this.buffer.delete();
+      this.buffer.destroy();
     }
     return this;
   }

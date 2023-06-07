@@ -388,7 +388,7 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   }
 
   _deleteScenes() {
-    this.scenes.forEach((scene) => scene.delete());
+    this.scenes.forEach((scene) => scene.destroy());
     this.scenes = [];
 
     luma.stats.get('Resource Counts').forEach(({name, count}) => {

@@ -17,7 +17,8 @@ import type {
   RenderPipelineProps,
   ComputePipelineProps,
   RenderPassProps,
-  ComputePassProps
+  ComputePassProps,
+  // CommandEncoderProps
 } from '@luma.gl/api';
 import {Device, CanvasContext, log, uid} from '@luma.gl/api';
 import {WebGPUBuffer} from './resources/webgpu-buffer';
@@ -30,6 +31,7 @@ import {WebGPUFramebuffer} from './resources/webgpu-framebuffer';
 import {WebGPUComputePipeline} from './resources/webgpu-compute-pipeline';
 import {WebGPURenderPass} from './resources/webgpu-render-pass';
 import {WebGPUComputePass} from './resources/webgpu-compute-pass';
+// import {WebGPUCommandEncoder} from './resources/webgpu-command-encoder';
 
 import {WebGPUCanvasContext} from './webgpu-canvas-context';
 // import {loadGlslangModule} from '../glsl/glslang';
@@ -162,8 +164,9 @@ export class WebGPUDevice extends Device {
     return this._isLost;
   }
 
-  _createBuffer(props: BufferProps): WebGPUBuffer {
-    return new WebGPUBuffer(this, props);
+  createBuffer(props: BufferProps | ArrayBuffer | ArrayBufferView): WebGPUBuffer {
+    const newProps = this._getBufferProps(props);
+    return new WebGPUBuffer(this, newProps);
   }
 
   _createTexture(props: TextureProps): WebGPUTexture {
@@ -209,6 +212,10 @@ export class WebGPUDevice extends Device {
     this.commandEncoder = this.commandEncoder || this.handle.createCommandEncoder();
     return new WebGPUComputePass(this, props);
   }
+
+  // createCommandEncoder(props: CommandEncoderProps): WebGPUCommandEncoder {
+  //   return new WebGPUCommandEncoder(this, props);
+  // }
 
   createCanvasContext(props: CanvasContextProps): WebGPUCanvasContext {
     return new WebGPUCanvasContext(this, this.adapter, props);

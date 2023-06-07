@@ -1,3 +1,5 @@
+// luma.gl, MIT license
+
 import GL from '@luma.gl/constants';
 
 const ERR_TYPE_DEDUCTION = 'Failed to deduce GL constant from typed array';
@@ -15,7 +17,7 @@ type TypedArrayConstructor =
 /**
  * Converts TYPED ARRAYS to corresponding GL constant
  * Used to auto deduce gl parameter types
- * @param {*} arrayOrType
+ * @param arrayOrType
  * @returns
  */
 export function getGLTypeFromTypedArray(arrayOrType) {

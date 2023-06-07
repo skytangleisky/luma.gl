@@ -1,13 +1,12 @@
 import {log, assert} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
-import {assertWebGL2Context} from '@luma.gl/webgl';
+import {WEBGLTexture, assertWebGL2Context} from '@luma.gl/webgl';
 import {withParameters} from '@luma.gl/webgl';
 import {flipRows, scalePixels} from '../webgl-utils/typed-array-utils';
 import {getTypedArrayFromGLType, getGLTypeFromTypedArray} from '../webgl-utils/typed-array-utils';
 import {glFormatToComponents, glTypeToBytes} from '../webgl-utils/format-utils';
 import {toFramebuffer} from '../webgl-utils/texture-utils';
 import Buffer from './buffer';
-// import Texture from '../adapter/resources/webgl-texture';
 import Texture from './texture';
 import Framebuffer from './framebuffer';
 
@@ -60,7 +59,7 @@ export function readPixelsToArray(
   // assert(attachments[sourceAttachment]);
 
   // Deduce the type from color attachment if not provided.
-  sourceType = sourceType || framebuffer.colorAttachments[attachment].type;
+  sourceType = sourceType || (framebuffer.colorAttachments[attachment].texture as WEBGLTexture).type;
 
   // Deduce type and allocated pixelArray if needed
   target = getPixelArray(target, sourceType, sourceFormat, sourceWidth, sourceHeight);
@@ -73,7 +72,7 @@ export function readPixelsToArray(
   // @ts-expect-error
   gl.bindFramebuffer(GL.FRAMEBUFFER, prevHandle || null);
   if (deleteFramebuffer) {
-    framebuffer.delete();
+    framebuffer.destroy();
   }
   return target;
 }
@@ -98,16 +97,9 @@ export function readPixelsToBuffer(
     sourceType?: number;
   }
 ): Buffer {
-  const {sourceX = 0, sourceY = 0, sourceFormat = GL.RGBA,
-    targetByteOffset = 0
-  } = options || {};
-    // following parameters are auto deduced if not provided
-  let {
-    target,
-    sourceWidth,
-    sourceHeight,
-    sourceType,
-  } = options || {}
+  const {sourceX = 0, sourceY = 0, sourceFormat = GL.RGBA, targetByteOffset = 0} = options || {};
+  // following parameters are auto deduced if not provided
+  let {target, sourceWidth, sourceHeight, sourceType} = options || {};
   const {framebuffer, deleteFramebuffer} = getFramebuffer(source);
   assert(framebuffer);
   sourceWidth = sourceWidth || framebuffer.width;
@@ -142,7 +134,7 @@ export function readPixelsToBuffer(
   });
   target.unbind({target: GL.PIXEL_PACK_BUFFER});
   if (deleteFramebuffer) {
-    framebuffer.delete();
+    framebuffer.destroy();
   }
 
   return target;
@@ -198,7 +190,9 @@ export function copyToImage(
     targetImage?: typeof Image;
   }
 ): typeof Image {
-  const dataUrl = copyToDataUrl(source, {sourceAttachment: options?.sourceAttachment || GL.COLOR_ATTACHMENT0});
+  const dataUrl = copyToDataUrl(source, {
+    sourceAttachment: options?.sourceAttachment || GL.COLOR_ATTACHMENT0
+  });
   const targetImage = options?.targetImage || new Image();
   // @ts-expect-error
   targetImage.src = dataUrl;
@@ -318,7 +312,7 @@ export function copyToTexture(
   // @ts-expect-error
   gl.bindFramebuffer(GL.FRAMEBUFFER, prevHandle || null);
   if (deleteFramebuffer) {
-    framebuffer.delete();
+    framebuffer.destroy();
   }
   return texture;
 }
@@ -410,8 +404,13 @@ export function blit(
   targetX1 = targetX1 === undefined ? width : targetX1;
   targetY1 = targetY1 === undefined ? height : targetY1;
 
-  const prevDrawHandle = gl.bindFramebuffer(GL.DRAW_FRAMEBUFFER, handle);
-  const prevReadHandle = gl.bindFramebuffer(GL.READ_FRAMEBUFFER, srcFramebuffer.handle);
+  const prevDrawHandle = gl.bindFramebuffer(GL.DRAW_FRAMEBUFFER, handle) as unknown as
+    | WebGLFramebuffer
+    | undefined;
+  const prevReadHandle = gl.bindFramebuffer(
+    GL.READ_FRAMEBUFFER,
+    srcFramebuffer.handle
+  ) as unknown as WebGLFramebuffer | undefined;
   gl2.readBuffer(sourceAttachment);
   gl2.blitFramebuffer(
     sourceX0,
@@ -426,15 +425,13 @@ export function blit(
     filter
   );
   gl2.readBuffer(readBuffer);
-  // @ts-expect-error
   gl2.bindFramebuffer(GL.READ_FRAMEBUFFER, prevReadHandle || null);
-  // @ts-expect-error
   gl2.bindFramebuffer(GL.DRAW_FRAMEBUFFER, prevDrawHandle || null);
   if (deleteSrcFramebuffer) {
-    srcFramebuffer.delete();
+    srcFramebuffer.destroy();
   }
   if (deleteDstFramebuffer) {
-    dstFramebuffer.delete();
+    dstFramebuffer.destroy();
   }
 
   // return dstFramebuffer;
@@ -442,14 +439,23 @@ export function blit(
 
 // Helper methods
 
-function getFramebuffer(source): {framebuffer: Framebuffer, deleteFramebuffer: boolean} {
+function getFramebuffer(source: Texture | Framebuffer): {
+  framebuffer: Framebuffer;
+  deleteFramebuffer: boolean;
+} {
   if (!(source instanceof Framebuffer)) {
     return {framebuffer: toFramebuffer(source), deleteFramebuffer: true};
   }
   return {framebuffer: source, deleteFramebuffer: false};
 }
 
-function getPixelArray(pixelArray, type, format, width: number, height: number): Uint8Array | Uint16Array | Float32Array {
+function getPixelArray(
+  pixelArray,
+  type,
+  format,
+  width: number,
+  height: number
+): Uint8Array | Uint16Array | Float32Array {
   if (pixelArray) {
     return pixelArray;
   }

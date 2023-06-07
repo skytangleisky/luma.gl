@@ -119,15 +119,14 @@ export default class Transform {
 
   /** Delete owned resources. */
   destroy(): void {
-    const {model, bufferTransform, textureTransform} = this;
-    if (model) {
-      model.delete();
+    if (this.model) {
+      this.model.destroy();
     }
-    if (bufferTransform) {
-      bufferTransform.delete();
+    if (this.bufferTransform) {
+      this.bufferTransform.destroy();
     }
-    if (textureTransform) {
-      textureTransform.delete();
+    if (this.textureTransform) {
+      this.textureTransform.destroy();
     }
   }
 

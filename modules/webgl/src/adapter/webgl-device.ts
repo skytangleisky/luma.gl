@@ -45,7 +45,9 @@ import type {
   // RenderPass,
   RenderPassProps,
   ComputePass,
-  ComputePassProps
+  ComputePassProps,
+  CommandEncoder,
+  CommandEncoderProps
 } from '@luma.gl/api';
 
 import {ClassicBuffer} from '../classic/buffer';
@@ -56,6 +58,7 @@ import {WEBGLTexture} from './resources/webgl-texture';
 import {WEBGLFramebuffer} from './resources/webgl-framebuffer';
 import {WEBGLRenderPass} from './resources/webgl-render-pass';
 import {WEBGLRenderPipeline} from './resources/webgl-render-pipeline';
+import {WEBGLCommandEncoder} from './resources/webgl-command-encoder';
 
 const LOG_LEVEL = 1;
 
@@ -279,8 +282,9 @@ ${this.info.vendor}, ${this.info.renderer} for canvas: ${this.canvasContext.id}`
     throw new Error('WebGL only supports a single canvas');
   }
 
-  _createBuffer(props: BufferProps): WEBGLBuffer {
-    return new ClassicBuffer(this, props);
+  createBuffer(props: BufferProps | ArrayBuffer | ArrayBufferView): WEBGLBuffer {
+    const newProps = this._getBufferProps(props);
+    return new ClassicBuffer(this, newProps);
   }
 
   _createTexture(props: TextureProps): WEBGLTexture {
@@ -328,6 +332,10 @@ ${this.info.vendor}, ${this.info.renderer} for canvas: ${this.canvasContext.id}`
         framebuffer: this.canvasContext.getCurrentFramebuffer()
       });
     return this.renderPass;
+  }
+
+  override createCommandEncoder(props: CommandEncoderProps): CommandEncoder {
+    return new WEBGLCommandEncoder(this, props);
   }
 
   /**

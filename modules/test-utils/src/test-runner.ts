@@ -204,7 +204,7 @@ export class TestRunner {
       for (const key in this._testCaseData) {
         const value = this._testCaseData[key];
         if (value && value.delete) {
-          value.delete();
+          value.destroy();
         }
       }
       this._currentTestCase.onFinalize(Object.assign({}, animationProps, this._testCaseData));

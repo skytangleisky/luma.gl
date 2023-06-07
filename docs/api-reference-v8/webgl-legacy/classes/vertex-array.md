@@ -38,7 +38,7 @@ const vao = new VertexArray(gl);
 Deleting a VertexArray
 
 ```typescript
-vertexArrayObject.delete();
+vertexArrayObject.destroy();
 ```
 
 Adding attributes to a VertexArray: without program metadata, buffers must be specified using location indices

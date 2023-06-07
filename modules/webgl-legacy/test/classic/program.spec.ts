@@ -39,10 +39,10 @@ test('WebGL#Program construct/delete', (t) => {
   const program = new Program(gl, {vs, fs});
   t.ok(program instanceof Program, 'Program construction successful');
 
-  program.delete();
+  program.destroy();
   t.ok(program instanceof Program, 'Program delete successful');
 
-  program.delete();
+  program.destroy();
   t.ok(program instanceof Program, 'Program repeated delete successful');
 
   t.end();
@@ -82,11 +82,11 @@ test('WebGL#Program caching', (t) => {
   const program = new Program(gl, {fs, vs});
 
   program._isCached = true;
-  program.delete();
+  program.destroy();
   t.ok(!program.destroyed, 'Program should not be deleted');
 
   program._isCached = false;
-  program.delete();
+  program.destroy();
   t.ok(program.destroyed, 'Program should be deleted');
 
   t.end();
@@ -101,6 +101,6 @@ test('WebGL#Program uniform array', (t) => {
   t.ok(program._uniformSetters['uMVMatrix[0]'], 'uniform array is ok');
   t.ok(program._uniformSetters['uMVMatrix[1]'], 'uniform array is ok');
 
-  program.delete();
+  program.destroy();
   t.end();
 });

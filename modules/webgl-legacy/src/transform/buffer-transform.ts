@@ -40,6 +40,18 @@ export default class BufferTransform {
     Object.seal(this);
   }
 
+  // Delete owned resources.
+  destroy(): void {
+    for (const name in this.resources) {
+      this.resources[name].destroy();
+    }
+  }
+
+  /** @deprecated Use .destroy() */
+  delete(): void {
+    this.destroy();
+  }
+
   setupResources(opts: {model: Model}): void {
     for (const binding of this.bindings) {
       this._setupTransformFeedback(binding, opts);
@@ -92,13 +104,6 @@ export default class BufferTransform {
       return buffer.getData();
     }
     return null;
-  }
-
-  // Delete owned resources.
-  delete(): void {
-    for (const name in this.resources) {
-      this.resources[name].delete();
-    }
   }
 
   // Private
@@ -216,7 +221,7 @@ export default class BufferTransform {
   _createNewBuffer(name: string, opts: BufferProps): Buffer {
     const buffer = new Buffer(this.gl, opts);
     if (this.resources[name]) {
-      this.resources[name].delete();
+      this.resources[name].destroy();
     }
     this.resources[name] = buffer;
     return buffer;

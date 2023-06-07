@@ -28,7 +28,7 @@ export class VRDisplay extends Display {
   }
 
   override delete() {
-    super.delete();
+    super.destroy();
     this._removeVRButton();
   }
 

@@ -233,8 +233,8 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   }
 
   override onFinalize(): void {
-    this.renderModel.delete();
-    this.transform.delete();
+    this.renderModel.destroy();
+    this.transform.destroy();
   }
 
   override onRender({width, height, time}: AnimationProps): void {

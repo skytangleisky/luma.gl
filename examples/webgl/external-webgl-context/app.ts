@@ -75,9 +75,9 @@ export default class AppAnimationLoop extends AnimationLoop {
 
   onDestroy() {
     const {positionBuffer, colorBuffer, model} = this.resources;
-    positionBuffer.delete();
-    colorBuffer.delete();
-    model.delete();
+    positionBuffer.destroy();
+    colorBuffer.destroy();
+    model.destroy();
   }
 }
 

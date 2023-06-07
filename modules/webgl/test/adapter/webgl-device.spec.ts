@@ -51,6 +51,23 @@ test('WebGLDevice#isWebGL2', (t) => {
   t.end();
 });
 
+test('WebGLDevice#lost (Promise)', async (t) => {
+  const device = await WebGLDevice.create({webgl2: false});
+
+  // Wrap in a promise to make sure tape waits for us
+  await new Promise<void>(async (resolve) => {
+    setTimeout(async () => {
+      const cause = await device.lost;
+      t.equal(cause.reason, 'destroyed', `Context lost: ${cause.message}`);
+      t.end();
+      resolve();
+    }, 0);
+    device.loseDevice();
+  });
+
+  device.destroy();
+});
+
 test.skip('WebGLDevice#resize', (t) => {
   // Using default pixel ratio of 1
   // update drawing buffer size to simulate webgl1Device context
@@ -136,21 +153,4 @@ test.skip('WebGLDevice#resize', (t) => {
   */
 
   t.end();
-});
-
-test('WebGLDevice#lost (Promise)', async (t) => {
-  const device = await WebGLDevice.create({webgl2: false});
-
-  // Wrap in a promise to make sure tape waits for us
-  await new Promise<void>(async (resolve) => {
-    setTimeout(async () => {
-      const cause = await device.lost;
-      t.equal(cause.reason, 'destroyed', `Context lost: ${cause.message}`);
-      t.end();
-      resolve();
-    }, 0);
-    device.loseDevice();
-  });
-
-  device.destroy();
 });

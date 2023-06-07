@@ -81,10 +81,10 @@ test('WebGL#Framebuffer construct/delete', (t) => {
   const framebuffer = new Framebuffer(gl);
   t.ok(framebuffer instanceof Framebuffer, 'Framebuffer construction successful');
 
-  framebuffer.delete();
+  framebuffer.destroy();
   t.ok(framebuffer instanceof Framebuffer, 'Framebuffer delete successful');
 
-  framebuffer.delete();
+  framebuffer.destroy();
   t.ok(framebuffer instanceof Framebuffer, 'Framebuffer repeated delete successful');
 
   t.end();
@@ -230,7 +230,7 @@ test('WebGL2#Framebuffer texture attach and read', t => {
         // texture = new Texture2D(gl2, Object.assign({format, dataFormat, type}));
         // t.equals(texture.format, format,
         //   `Texture2D({format: ${getKey(format)}, type: ${getKey(type)}, dataFormat: ${getKey(dataFormat)}) created`);
-        // texture.delete()
+        // texture.destroy()
         const data = TEXTURE_DATA[type] || DEFAULT_TEXTURE_DATA;
         texture = new Texture2D(gl2, {format, dataFormat, type, data, width: 1, height: 1});
         t.equals(texture.format, format,
@@ -252,7 +252,7 @@ test('WebGL2#Framebuffer texture attach and read', t => {
           'Framebuffer.readPixels returned'
         );
         t.ok(pixels, 'Received pixels');
-        texture.delete();
+        texture.destroy();
       }
     }
   }

@@ -248,8 +248,8 @@ test.skip('gpgpu#GPUPointInPolygon CPU vs GPU', (t) => {
         const index = filterValueIndexArray[i * 2 + 1];
         gpuResults[index] = filterValueIndexArray[i * 2];
       }
-      positionBuffer.delete();
-      filterValueIndexBuffer.delete();
+      positionBuffer.destroy();
+      filterValueIndexBuffer.destroy();
 
       // cpu
       // @ts-expect-error

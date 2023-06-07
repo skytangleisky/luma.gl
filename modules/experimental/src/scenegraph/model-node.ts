@@ -45,12 +45,12 @@ export class ModelNode extends ScenegraphNode {
 
   override destroy(): void {
     if (this.model) {
-      this.model.delete();
+      this.model.destroy();
       // @ts-expect-error
       this.model = null;
     }
 
-    this.managedResources.forEach((resource) => resource.delete());
+    this.managedResources.forEach((resource) => resource.destroy());
     this.managedResources = [];
   }
 
