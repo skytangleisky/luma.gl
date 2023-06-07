@@ -61,14 +61,14 @@ function getDefaultProps(props: ClassicFramebufferProps): FramebufferProps {
   }
 
   if (color) {
-    newProps.colorAttachments = newProps.colorAttachments || [{format: 'rgba8unorm-unsized'}];
+    newProps.colorAttachments = newProps.colorAttachments || ['rgba8unorm-unsized'];
   }
   if (depth && stencil) {
-    newProps.depthStencilAttachment = newProps.depthStencilAttachment || {format: 'depth24plus-stencil8'};
+    newProps.depthStencilAttachment = newProps.depthStencilAttachment || 'depth24plus-stencil8';
   } else if (depth) {
-    newProps.depthStencilAttachment = newProps.depthStencilAttachment || {format: 'depth16unorm'};
+    newProps.depthStencilAttachment = newProps.depthStencilAttachment || 'depth16unorm';
   } else if (stencil) {
-    newProps.depthStencilAttachment = newProps.depthStencilAttachment || {format: 'stencil8'};
+    newProps.depthStencilAttachment = newProps.depthStencilAttachment || 'stencil8';
   }
   return newProps;
 }

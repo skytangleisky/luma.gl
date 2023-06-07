@@ -21,8 +21,6 @@ export class WEBGLFramebuffer extends Framebuffer {
     return this.colorAttachments[0];
   }
 
-  protected _ownResources: (WEBGLTexture | WEBGLRenderbuffer)[] = [];
-
   constructor(device: WebGLDevice, props: FramebufferProps) {
     super(device, props);
 

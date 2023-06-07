@@ -13,7 +13,6 @@
     {"path": "modules/debug"},
     {"path": "modules/engine"},
     {"path": "modules/experimental"},
-    {"path": "modules/gltools"},
     {"path": "modules/shadertools"},
     {"path": "modules/test-utils"},
     {"path": "modules/webgl"},

@@ -496,10 +496,10 @@ test('WebGL2#Texture2D NPOT Workaround: setParameters', (t) => {
   t.end();
 });
 
-test('WebGL1#Texture2D setImageData', (t) => {
+test.only('WebGL1#Texture2D setImageData', (t) => {
   const {gl} = fixture;
 
-  // data: null
+  debugger
   const texture = new Texture2D(gl, {data: null, width: 2, height: 1, mipmaps: false});
   t.deepEquals(readPixelsToArray(texture), new Float32Array(8), 'Pixels are empty');
 

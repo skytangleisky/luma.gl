@@ -10,8 +10,8 @@ import {log} from '../../lib/utils/log';
 export type FramebufferProps = ResourceProps & {
   width?: number;
   height?: number;
-  colorAttachments?: (Texture | ColorAttachment)[];
-  depthStencilAttachment?: (Texture | DepthStencilAttachment) | null;
+  colorAttachments?: (ColorAttachment | Texture | ColorTextureFormat)[];
+  depthStencilAttachment?: (Texture | DepthStencilAttachment | DepthStencilTextureFormat) | null;
 };
 
 const DEFAULT_FRAMEBUFFER_PROPS: Required<FramebufferProps> = {
@@ -47,8 +47,8 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
     this.width = this.props.width;
     this.height = this.props.height;
 
-    this.colorAttachments = props.colorAttachments.map(attachment => this.normalizeColorAttachment(attachment));
-    if (props.depthStencilAttachment) {
+    this.colorAttachments = this.props.colorAttachments.map(attachment => this.normalizeColorAttachment(attachment));
+    if (this.props.depthStencilAttachment) {
       this.depthStencilAttachment = this.normalizeDepthStencilAttachment(props.depthStencilAttachment);
     }
 
@@ -142,12 +142,12 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
     });
 
     if (this.depthStencilAttachment) {
-      if (!this.depthStencilAttachment.texture && this.depthStencilAttachment.format) {
-        const texture = this.createDepthStencilTexture(this.depthStencilAttachment);
-        this.attachResource(texture);
-        this.depthStencilAttachment = {...this.depthStencilAttachment, texture};
+      if (!this.depthStencilAttachment.texture && !this.depthStencilAttachment.format) {
+        throw new Error(ERR_ATTACHMENT_FORMAT);
       }
-      throw new Error(ERR_ATTACHMENT_FORMAT);
+      const texture = this.createDepthStencilTexture(this.depthStencilAttachment);
+      this.attachResource(texture);
+      this.depthStencilAttachment = {...this.depthStencilAttachment, texture};
     }
   }
 
