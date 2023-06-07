@@ -9,7 +9,7 @@ test('texture-utils#cloneTextureFrom', (t) => {
   const refTextureOptions = {
     width: 10,
     height: 20,
-    format: GL.RGBA,
+    glFormat: GL.RGBA,
     dataFormat: GL.RGBA,
     type: GL.UNSIGNED_BYTE
   };

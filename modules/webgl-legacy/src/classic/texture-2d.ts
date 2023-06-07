@@ -1,8 +1,8 @@
-import {Device, TextureData} from '@luma.gl/api';
+import {Device, TextureData, TextureFormat} from '@luma.gl/api';
 import Texture, {TextureProps} from './texture';
 
-export type Texture2DProps = TextureProps & {
-  format?: number;
+export type Texture2DProps = Omit<TextureProps, 'format'> & {
+  format?: TextureFormat | number;
 };
 
 /**
@@ -27,6 +27,9 @@ export default class Texture2D extends Texture {
     // Signature: new Texture2D(gl, {data: url}):
     // Handled by `WEBGLTexture` constructor
 
-    super(device, {...props, dimension: '2d'}); // target: GL.TEXTURE_2D
+    super(device, {
+      ...props, 
+      dimension: '2d'
+    });
   }
 }

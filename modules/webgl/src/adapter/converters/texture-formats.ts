@@ -330,7 +330,10 @@ export const TEXTURE_FORMATS: Record<TextureFormat, Format> = {
 
 // FUNCTIONS
 
-function getTextureFormat(format: TextureFormat | GL): TextureFormat {
+/** 
+ * Map WebGL texture formats (GL constants) to WebGPU-style TextureFormat strings
+ */
+export function convertGLToTextureFormat(format: GL | TextureFormat): TextureFormat {
   if (typeof format === 'string') {
     return format;
   }
@@ -341,12 +344,30 @@ function getTextureFormat(format: TextureFormat | GL): TextureFormat {
   return entry[0] as TextureFormat;
 }
 
+/**
+ * Map WebGPU style texture format strings to GL constants
+ */
+export function convertTextureFormatToGL(formatOrGL: TextureFormat | GL, isWebGL2: boolean): GL | undefined {
+  const format = convertGLToTextureFormat(formatOrGL);
+  const formatInfo = TEXTURE_FORMATS[format];
+  const webglFormat = isWebGL2 ? formatInfo?.gl : formatInfo?.gl1;
+  // Remap or pass through
+  if (typeof format === 'number') {
+    return webglFormat || format;
+  }
+  if (webglFormat === undefined) {
+    throw new Error(`Unsupported texture format ${format}`);
+  }
+  return webglFormat;
+}
+
+
 /** Checks if a texture format is supported */
 export function isTextureFormatSupported(
   gl: WebGLRenderingContext,
   formatOrGL: TextureFormat | GL
 ): boolean {
-  const format = getTextureFormat(formatOrGL);
+  const format = convertGLToTextureFormat(formatOrGL);
   const info = TEXTURE_FORMATS[format];
   if (!info) {
     return false;
@@ -377,7 +398,7 @@ export function getTextureFormatSupport(
   blendable?: boolean;
   storable?: boolean;
 } {
-  const format = getTextureFormat(formatOrGL);
+  const format = convertGLToTextureFormat(formatOrGL);
   const info = TEXTURE_FORMATS[format];
   if (!info) {
     return {supported: false};
@@ -413,7 +434,7 @@ export function isTextureFormatFilterable(
   gl: WebGLRenderingContext,
   formatOrGL: TextureFormat | GL
 ): boolean {
-  const format = getTextureFormat(formatOrGL);
+  const format = convertGLToTextureFormat(formatOrGL);
   if (!isTextureFormatSupported(gl, format)) {
     return false;
   }
@@ -449,7 +470,7 @@ export function isTextureFormatRenderable(
   gl: WebGLRenderingContext,
   formatOrGL: TextureFormat | GL
 ): boolean {
-  const format = getTextureFormat(formatOrGL);
+  const format = convertGLToTextureFormat(formatOrGL);
   if (!isTextureFormatSupported(gl, format)) {
     return false;
   }
@@ -460,27 +481,9 @@ export function isTextureFormatRenderable(
   return true;
 }
 
-/**
- * Converts WebGPU string style texture formats to GL constants
- * Pass through GL constants
- */
-export function getWebGLTextureFormat(gl: WebGLRenderingContext, formatOrGL: TextureFormat | GL): GL | undefined {
-  const format = getTextureFormat(formatOrGL);
-  const formatInfo = TEXTURE_FORMATS[format];
-  const webglFormat = isWebGL2(gl) ? formatInfo?.gl : formatInfo?.gl1;
-  // Remap or pass through
-  if (typeof format === 'number') {
-    return webglFormat || format;
-  }
-  if (webglFormat === undefined) {
-    throw new Error(`Unsupported texture format ${format}`);
-  }
-  return webglFormat;
-}
-
-export function getWebGLTextureParameters(gl: WebGLRenderingContext, formatOrGL: TextureFormat | GL) {
-  const format = getTextureFormat(formatOrGL);
-  const webglFormat = getWebGLTextureFormat(gl, format);
+export function getWebGLTextureParameters(formatOrGL: TextureFormat | GL, isWebGL2: boolean) {
+  const format = convertGLToTextureFormat(formatOrGL);
+  const webglFormat = convertTextureFormatToGL(format, isWebGL2);
   const decoded = decodeTextureFormat(format);
   return {
     format: webglFormat,
@@ -499,7 +502,7 @@ export function getWebGLTextureParameters(gl: WebGLRenderingContext, formatOrGL:
 export function getWebGLDepthStencilAttachment(
   formatOrGL: TextureFormat | GL
 ): GL.DEPTH_ATTACHMENT | GL.STENCIL_ATTACHMENT | GL.DEPTH_STENCIL_ATTACHMENT {
-  const format = getTextureFormat(formatOrGL);
+  const format = convertGLToTextureFormat(formatOrGL);
   if (typeof format === 'number') {
     // TODO
     throw new Error('unsupported depth stencil format')
@@ -588,9 +591,9 @@ const TYPE_SIZES = {
 };
 
 /** TODO - VERY roundabout legacy way of calculating bytes per pixel */
-export function getTextureFormatBytesPerPixel(gl: WebGLRenderingContext, formatOrGL: TextureFormat | GL): number {
-  const format = getTextureFormat(formatOrGL);
-  const params = getWebGLTextureParameters(gl, format);
+export function getTextureFormatBytesPerPixel(formatOrGL: TextureFormat | GL, isWebGL2: boolean): number {
+  const format = convertGLToTextureFormat(formatOrGL);
+  const params = getWebGLTextureParameters(format, isWebGL2);
   // NOTE(Tarek): Default to RGBA bytes
   const channels = DATA_FORMAT_CHANNELS[params.dataFormat] || 4;
   const channelSize = TYPE_SIZES[params.type] || 1;

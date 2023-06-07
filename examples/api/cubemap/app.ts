@@ -1,5 +1,5 @@
 import {Device, loadImage, glsl} from '@luma.gl/api';
-import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps, CubeGeometry, Model, ModelProps} from '@luma.gl/engine';
+import {AnimationLoopTemplate, AnimationProps, CubeGeometry, Model, ModelProps} from '@luma.gl/engine';
 import {GL, clear} from '@luma.gl/webgl-legacy';
 import {Matrix4, radians} from '@math.gl/core';
 

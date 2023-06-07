@@ -1,9 +1,15 @@
-import {Device, TextureProps, assert} from '@luma.gl/api';
+import {Device, TextureFormat, TextureProps, assert} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
 import {isWebGL2} from '@luma.gl/webgl';
 import {getKey, getKeyValue} from '../webgl-utils/constants-to-keys';
 import {WebGLDevice, WEBGLTexture} from '@luma.gl/webgl';
+import {convertGLToTextureFormat} from '@luma.gl/webgl';
 // import {isTextureFormatSupported, isTextureFormatFilterable} from '../adapter/converters/texture-formats';
+
+
+export type ClassicTextureProps = Omit<TextureProps, 'format'> & {
+  format?: TextureFormat | number;
+};
 
 export type {TextureProps};
 
@@ -27,16 +33,16 @@ export default class ClassicTexture extends WEBGLTexture {
     const {format, linearFiltering} = options;
     let supported = true;
     if (format) {
-      // @ts-expect-error Hack: we allow number (GL constant)
-      supported = supported && webglDevice.isTextureFormatSupported(format);
-      // @ts-expect-error Hack: we allow number (GL constant)
-      supported = supported && (!linearFiltering || webglDevice.isTextureFormatFilterable(format));
+      const textureFormat = convertGLToTextureFormat(format);
+      supported = supported && webglDevice.isTextureFormatSupported(textureFormat);
+      supported = supported && (!linearFiltering || webglDevice.isTextureFormatFilterable(textureFormat));
     }
     return supported;
   }
 
-  constructor(device: Device | WebGLRenderingContext, props: TextureProps) {
-    super(WebGLDevice.attach(device), props);
+  constructor(device: Device | WebGLRenderingContext, props: ClassicTextureProps) {
+    const webglDevice = WebGLDevice.attach(device);
+    super(webglDevice, {...props, format: convertGLToTextureFormat(props.format)});
   }
 
   // RESOURCE METHODS

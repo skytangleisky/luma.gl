@@ -18,7 +18,7 @@ import GL from '@luma.gl/constants';
 import type {GLSamplerParameters} from '../../types/webgl';
 import {withParameters} from '../../context/state-tracker/with-parameters';
 import {
-  getWebGLTextureFormat,
+  convertTextureFormatToGL,
   getWebGLTextureParameters,
   getTextureFormatBytesPerPixel
 } from '../converters/texture-formats';
@@ -48,7 +48,7 @@ type SetImageDataOptions = {
   width?: number;
   height?: number;
   depth?: number;
-  format?: any;
+  glFormat?: GL;
   type?: any;
   offset?: number;
   data: any; // TextureSourceData;
@@ -87,7 +87,7 @@ type SetSubImageDataOptions = {
   width?: number;
   height?: number;
   depth?: number;
-  format?: any;
+  glFormat?: any;
   type?: any;
   offset?: number;
   data: any;
@@ -250,7 +250,7 @@ export class WEBGLTexture extends Texture {
     let {width, height, dataFormat, type, compressed = false, mipmaps = true} = props;
     const {depth = 0} = props;
 
-    const glFormat = getWebGLTextureFormat(this.gl, props.format);
+    const glFormat = convertTextureFormatToGL(props.format, this.device.isWebGL2);
 
     // Deduce width and height
     ({width, height, compressed, dataFormat, type} = this._deduceParameters({
@@ -442,7 +442,7 @@ export class WEBGLTexture extends Texture {
       target = this.target,
       pixels = null,
       level = 0,
-      format = this.format,
+      glFormat = this.glFormat,
       offset = 0,
       parameters = {}  as Record<GL, any>
     } = options;
@@ -482,7 +482,7 @@ export class WEBGLTexture extends Texture {
     withParameters(this.gl, parameters, () => {
       switch (dataType) {
         case 'null':
-          gl.texImage2D(target, level, format, width, height, 0 /* border*/, dataFormat, type, data);
+          gl.texImage2D(target, level, glFormat, width, height, 0 /* border*/, dataFormat, type, data);
           break;
         case 'typed-array':
           // Looks like this assert is not necessary, as offset is ignored under WebGL1
@@ -490,7 +490,7 @@ export class WEBGLTexture extends Texture {
           gl.texImage2D(
             target,
             level,
-            format,
+            glFormat,
             width,
             height,
             0, // border (must be 0)
@@ -508,7 +508,7 @@ export class WEBGLTexture extends Texture {
           gl2.texImage2D(
             target,
             level,
-            format,
+            glFormat,
             width,
             height,
             0 /* border*/,
@@ -523,7 +523,7 @@ export class WEBGLTexture extends Texture {
             gl.texImage2D(
               target,
               level,
-              format,
+              glFormat,
               width,
               height,
               0 /* border*/,
@@ -532,7 +532,7 @@ export class WEBGLTexture extends Texture {
               data
             );
           } else {
-            gl.texImage2D(target, level, format, dataFormat, type, data);
+            gl.texImage2D(target, level, glFormat, dataFormat, type, data);
           }
           break;
         case 'compressed':
@@ -557,7 +557,7 @@ export class WEBGLTexture extends Texture {
     if (data && data.byteLength) {
       this.trackAllocatedMemory(data.byteLength, 'Texture');
     } else {
-      const bytesPerPixel = getTextureFormatBytesPerPixel(this.gl, this.props.format);
+      const bytesPerPixel = getTextureFormatBytesPerPixel(this.props.format, this.device.isWebGL2);
       this.trackAllocatedMemory(this.width * this.height * bytesPerPixel, 'Texture');
     }
 
@@ -580,7 +580,7 @@ export class WEBGLTexture extends Texture {
     width = this.width,
     height = this.height,
     level = 0,
-    format = this.format,
+    glFormat = this.glFormat,
     type = this.type,
     dataFormat = this.dataFormat,
     compressed = false,
@@ -622,7 +622,7 @@ export class WEBGLTexture extends Texture {
     withParameters(this.gl, parameters, () => {
       // TODO - x,y parameters
       if (compressed) {
-        this.gl.compressedTexSubImage2D(target, level, x, y, width, height, format, data);
+        this.gl.compressedTexSubImage2D(target, level, x, y, width, height, glFormat, data);
       } else if (data === null) {
         this.gl.texSubImage2D(target, level, x, y, width, height, dataFormat, type, null);
       } else if (ArrayBuffer.isView(data)) {
@@ -721,7 +721,7 @@ export class WEBGLTexture extends Texture {
     let {width, height, dataFormat, type, compressed} = opts;
 
     // Deduce format and type from format
-    const parameters = getWebGLTextureParameters(this.gl, format);
+    const parameters = getWebGLTextureParameters(format, this.device.isWebGL2);
     dataFormat = dataFormat || parameters.dataFormat;
     type = type || parameters.type;
     compressed = compressed || parameters.compressed;
@@ -877,7 +877,7 @@ export class WEBGLTexture extends Texture {
 
     this.gl.bindTexture(this.target, this.handle);
 
-    const webglTextureFormat = getWebGLTextureParameters(this.gl, format);
+    const webglTextureFormat = getWebGLTextureParameters(format, this.device.isWebGL2);
 
     withParameters(this.gl, parameters, () => {
       if (ArrayBuffer.isView(data)) {
@@ -917,7 +917,7 @@ export class WEBGLTexture extends Texture {
     if (data && data.byteLength) {
       this.trackAllocatedMemory(data.byteLength, 'Texture');
     } else {
-      const bytesPerPixel = getTextureFormatBytesPerPixel(this.gl, this.props.format);
+      const bytesPerPixel = getTextureFormatBytesPerPixel(this.props.format, this.device.isWebGL2);
       this.trackAllocatedMemory(this.width * this.height * this.depth * bytesPerPixel, 'Texture');
     }
 

@@ -74,4 +74,4 @@ export {polyfillContext} from './context/polyfill/polyfill-context';
 
 // HELPERS - EXPERIMENTAL
 export {getShaderLayout, getProgramBindings} from './adapter/helpers/get-shader-layout';
-export {_checkFloat32ColorAttachment} from './adapter/converters/texture-formats';
+export {convertGLToTextureFormat, _checkFloat32ColorAttachment} from './adapter/converters/texture-formats';
