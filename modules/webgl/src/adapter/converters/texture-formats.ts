@@ -37,7 +37,7 @@ const EXT_FLOAT_RENDER_WEBGL2 = 'EXT_color_buffer_float';
 const checkExtension = (gl: WebGLRenderingContext, extension: string): boolean =>
   gl.getExtension(extension);
 const checkExtensions = (gl: WebGLRenderingContext, extensions: string[]): boolean =>
-  extensions.every((extension) => gl.getExtension(extension));
+  extensions.every(extension => gl.getExtension(extension));
 
 // prettier-ignore
 const TEXTURE_FEATURE_CHECKS: Partial<Record<DeviceFeature, (gl: WebGLRenderingContext) => boolean> > = {
@@ -70,12 +70,12 @@ export function checkTextureFeature(gl: WebGLRenderingContext, feature: DeviceFe
 }
 
 const checkTextureFeatures = (gl: WebGLRenderingContext, features: DeviceFeature[]): boolean =>
-  features.every((feature) => checkTextureFeature(gl, feature));
+  features.every(feature => checkTextureFeature(gl, feature));
 
 /** Return a list of texture feature strings (for Device.features). Mainly compressed texture support */
 export function getTextureFeatures(gl: WebGLRenderingContext): DeviceFeature[] {
   const textureFeatures = Object.keys(TEXTURE_FEATURE_CHECKS) as DeviceFeature[];
-  return textureFeatures.filter((feature) => checkTextureFeature(gl, feature));
+  return textureFeatures.filter(feature => checkTextureFeature(gl, feature));
 }
 
 // TEXTURE FORMATS
@@ -330,14 +330,16 @@ export const TEXTURE_FORMATS: Record<TextureFormat, Format> = {
 
 // FUNCTIONS
 
-/** 
+/**
  * Map WebGL texture formats (GL constants) to WebGPU-style TextureFormat strings
  */
 export function convertGLToTextureFormat(format: GL | TextureFormat): TextureFormat {
   if (typeof format === 'string') {
     return format;
   }
-  const entry = Object.entries(TEXTURE_FORMATS).find(([, entry]) => (entry.gl === format || entry.gl1 === format));
+  const entry = Object.entries(TEXTURE_FORMATS).find(
+    ([, entry]) => entry.gl === format || entry.gl1 === format
+  );
   if (!entry) {
     throw new Error(`Unknown texture format ${format}`);
   }
@@ -347,7 +349,10 @@ export function convertGLToTextureFormat(format: GL | TextureFormat): TextureFor
 /**
  * Map WebGPU style texture format strings to GL constants
  */
-export function convertTextureFormatToGL(formatOrGL: TextureFormat | GL, isWebGL2: boolean): GL | undefined {
+export function convertTextureFormatToGL(
+  formatOrGL: TextureFormat | GL,
+  isWebGL2: boolean
+): GL | undefined {
   const format = convertGLToTextureFormat(formatOrGL);
   const formatInfo = TEXTURE_FORMATS[format];
   const webglFormat = isWebGL2 ? formatInfo?.gl : formatInfo?.gl1;
@@ -360,7 +365,6 @@ export function convertTextureFormatToGL(formatOrGL: TextureFormat | GL, isWebGL
   }
   return webglFormat;
 }
-
 
 /** Checks if a texture format is supported */
 export function isTextureFormatSupported(
@@ -499,20 +503,14 @@ export function getWebGLTextureParameters(formatOrGL: TextureFormat | GL, isWebG
   };
 }
 
-export function getWebGLDepthStencilAttachment(
-  formatOrGL: TextureFormat | GL
+export function getDepthStencilAttachmentWebGL(
+  format: TextureFormat
 ): GL.DEPTH_ATTACHMENT | GL.STENCIL_ATTACHMENT | GL.DEPTH_STENCIL_ATTACHMENT {
-  const format = convertGLToTextureFormat(formatOrGL);
-  if (typeof format === 'number') {
-    // TODO
-    throw new Error('unsupported depth stencil format')
-  }
   const info = TEXTURE_FORMATS[format];
-  const attachment = info.attachment;
-  if (!attachment) {
-    throw new Error('not a depth stencil format');
+  if (!info?.attachment) {
+    throw new Error(`${format} is not a depth stencil format`);
   }
-  return attachment;
+  return info.attachment;
 }
 
 /**
@@ -591,7 +589,10 @@ const TYPE_SIZES = {
 };
 
 /** TODO - VERY roundabout legacy way of calculating bytes per pixel */
-export function getTextureFormatBytesPerPixel(formatOrGL: TextureFormat | GL, isWebGL2: boolean): number {
+export function getTextureFormatBytesPerPixel(
+  formatOrGL: TextureFormat | GL,
+  isWebGL2: boolean
+): number {
   const format = convertGLToTextureFormat(formatOrGL);
   const params = getWebGLTextureParameters(format, isWebGL2);
   // NOTE(Tarek): Default to RGBA bytes

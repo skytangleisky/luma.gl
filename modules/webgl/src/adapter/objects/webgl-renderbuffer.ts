@@ -1,14 +1,14 @@
-/* eslint-disable no-inline-comments */
-import {assert, ResourceProps} from '@luma.gl/api';
+import {assert, ResourceProps, TextureFormat} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
 import {WebGLDevice} from '../webgl-device';
 import {WebGLResource} from './webgl-resource';
 import {
   isRenderbufferFormatSupported, getRenderbufferFormatBytesPerPixel
 } from '../converters/renderbuffer-formats';
+import {convertTextureFormatToGL} from '../converters/texture-formats';
 
 export type RenderbufferProps = ResourceProps & {
-  format: number;
+  format: TextureFormat;
   width?: number;
   height?: number;
   samples?: number;
@@ -18,8 +18,8 @@ const DEFAULT_RENDERBUFFER_PROPS: Required<RenderbufferProps> = {
   id: undefined,
   handle: undefined,
   userData: undefined,
-  format: 0,
-  width: 1, 
+  format: undefined, // 'depth16unorm'
+  width: 1,
   height: 1, 
   samples: 0
 };
@@ -39,8 +39,12 @@ export class WEBGLRenderbuffer extends WebGLResource<RenderbufferProps> {
 
   get width(): number { return this.props.width; }
   get height(): number { return this.props.height; }
-  get format(): number  { return this.props.format; }
+  get format(): TextureFormat { return this.props.format; }
   get samples(): number { return this.props.samples; }
+  get attachment() { return  }
+
+  /** WebGL format constant */
+  glFormat: GL;
 
   static isSupported(gl: WebGLRenderingContext, options?: {format?: number}): boolean {
     return !options?.format || isRenderbufferFormatSupported(gl, options.format);
@@ -48,6 +52,7 @@ export class WEBGLRenderbuffer extends WebGLResource<RenderbufferProps> {
 
   constructor(device: WebGLDevice, props: RenderbufferProps) {
     super(device, props, DEFAULT_RENDERBUFFER_PROPS);
+    this.glFormat = convertTextureFormatToGL(this.props.format, device.isWebGL2);
     this._initialize(this.props);
   }
 
@@ -72,16 +77,15 @@ export class WEBGLRenderbuffer extends WebGLResource<RenderbufferProps> {
     this.gl.bindRenderbuffer(GL.RENDERBUFFER, this.handle);
 
     if (samples !== 0 && this.device.isWebGL2) {
-      // @ts-expect-error
-      this.gl.renderbufferStorageMultisample(GL.RENDERBUFFER, samples, format, width, height);
+      this.gl2.renderbufferStorageMultisample(GL.RENDERBUFFER, samples, this.glFormat, width, height);
     } else {
-      this.gl.renderbufferStorage(GL.RENDERBUFFER, format, width, height);
+      this.gl.renderbufferStorage(GL.RENDERBUFFER, this.glFormat, width, height);
     }
 
     this.gl.bindRenderbuffer(GL.RENDERBUFFER, null);
 
     this.trackAllocatedMemory(
-      width * height * (samples || 1) * getRenderbufferFormatBytesPerPixel(format)
+      width * height * (samples || 1) * getRenderbufferFormatBytesPerPixel(this.glFormat)
     );
 
     return this;

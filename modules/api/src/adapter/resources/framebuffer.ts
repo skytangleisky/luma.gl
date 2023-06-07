@@ -118,11 +118,12 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
       stencilReadOnly: false
     };
 
-    if (attachment instanceof Texture) {
-      return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, texture: attachment};
-    }
     if (typeof attachment === 'string') {
       return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, format: attachment};
+    }
+    // @ts-expect-error attachment instanceof Texture doesn't cover Renderbuffer
+    if (attachment.handle || attachment instanceof Texture) {
+      return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, texture: attachment as Texture};
     }
     return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, ...attachment};
   }
@@ -142,7 +143,10 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
     });
 
     if (this.depthStencilAttachment) {
-      if (!this.depthStencilAttachment.texture && !this.depthStencilAttachment.format) {
+      if (this.depthStencilAttachment.texture) {
+        return;
+      }
+      if (!this.depthStencilAttachment.format) {
         throw new Error(ERR_ATTACHMENT_FORMAT);
       }
       const texture = this.createDepthStencilTexture(this.depthStencilAttachment);

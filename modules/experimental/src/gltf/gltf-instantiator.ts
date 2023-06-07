@@ -1,12 +1,29 @@
-import {Device, log} from '@luma.gl/api';
+import {Device, Buffer, log} from '@luma.gl/api';
 import {WebGLDevice} from '@luma.gl/webgl';
-import {Buffer, Accessor} from '@luma.gl/webgl-legacy';
+import {Accessor} from '@luma.gl/webgl-legacy';
 import {Matrix4} from '@math.gl/core';
 import {GroupNode} from '../scenegraph/group-node';
 import {ModelNode} from '../scenegraph/model-node';
 
+import type {GLTFMaterialParserProps} from './gltf-material-parser';
 import {GLTFAnimator} from './gltf-animator';
 import {createGLTFModel} from './create-gltf-model';
+
+export type GLTFInstantiatorOptions = GLTFMaterialParserProps & {
+  modelOptions?: Record<string, any>,
+  pbrDebug?: boolean,
+  imageBasedLightingEnvironment?: any,
+  lights?: boolean,
+  useTangents?: boolean
+}
+
+const DEFAULT_OPTIONS = {
+  modelOptions: {},
+  pbrDebug: false,
+  imageBasedLightingEnvironment: null,
+  lights: true,
+  useTangents: false
+};
 
 // TODO: import {ATTRIBUTE_TYPE_TO_COMPONENTS} from '@loaders.gl/gltf';
 const ATTRIBUTE_TYPE_TO_COMPONENTS = {
@@ -19,23 +36,17 @@ const ATTRIBUTE_TYPE_TO_COMPONENTS = {
   MAT4: 16
 };
 
-const DEFAULT_OPTIONS = {
-  modelOptions: {},
-  pbrDebug: false,
-  imageBasedLightingEnvironment: null,
-  lights: true,
-  useTangents: false
-};
-
-// GLTF instantiator for luma.gl
-// Walks the parsed and resolved glTF structure and builds a luma.gl scenegraph
+/**
+ * GLTF instantiator for luma.gl
+ * Walks the parsed and resolved glTF structure and builds a luma.gl scenegraph
+ */
 export class GLTFInstantiator {
   // TODO - replace with Device
   device: WebGLDevice;
-  options;
-  gltf;
+  options: GLTFInstantiatorOptions;
+  gltf: any;
 
-  constructor(device: Device, options = {}) {
+  constructor(device: Device, options: GLTFInstantiatorOptions = {}) {
     this.device = WebGLDevice.attach(device);
     this.options = {...DEFAULT_OPTIONS, ...options};
   }
@@ -103,7 +114,7 @@ export class GLTFInstantiator {
     return gltfNode._node;
   }
 
-  createMesh(gltfMesh) {
+  createMesh(gltfMesh): GroupNode {
     // TODO: avoid changing the gltf
     if (!gltfMesh._mesh) {
       const gltfPrimitives = gltfMesh.primitives || [];
@@ -149,12 +160,12 @@ export class GLTFInstantiator {
     const loadedAttributes = {};
 
     for (const [attrName, attribute] of Object.entries(attributes)) {
-      const buffer = this.createBuffer(attribute, this.device.gl.ARRAY_BUFFER);
+      const buffer = this.createBuffer(attribute, Buffer.VERTEX);
       loadedAttributes[attrName] = this.createAccessor(attribute, buffer);
     }
 
     if (indices) {
-      const buffer = this.createBuffer(indices, this.device.gl.ELEMENT_ARRAY_BUFFER)
+      const buffer = this.createBuffer(indices, Buffer.INDEX)
       // @ts-expect-error
       loadedAttributes.indices = this.createAccessor(indices, buffer);
     }
@@ -164,7 +175,7 @@ export class GLTFInstantiator {
     return loadedAttributes;
   }
 
-  createBuffer(attribute, target) {
+  createBuffer(attribute, usage: number): Buffer {
     if (!attribute.bufferView) {
       // Draco decoded files do not have a bufferView
       attribute.bufferView = {};
@@ -175,16 +186,15 @@ export class GLTFInstantiator {
       bufferView.lumaBuffers = {};
     }
 
-    if (!bufferView.lumaBuffers[target]) {
-      bufferView.lumaBuffers[target] = new Buffer(this.device.gl, {
+    if (!bufferView.lumaBuffers[usage]) {
+      bufferView.lumaBuffers[usage] = this.device.createBuffer({
         id: `from-${bufferView.id}`,
         // Draco decoded files have attribute.value
         data: bufferView.data || attribute.value,
-        target
       });
     }
 
-    return bufferView.lumaBuffers[target];
+    return bufferView.lumaBuffers[usage];
   }
 
   createAccessor(accessor, buffer) {

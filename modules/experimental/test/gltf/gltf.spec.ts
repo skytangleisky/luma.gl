@@ -7,9 +7,11 @@ import {GLTFLoader} from '@loaders.gl/gltf';
 import {Texture2D, TextureCube} from '@luma.gl/webgl-legacy';
 import {createGLTFObjects, GLTFEnvironment} from '@luma.gl/experimental';
 
-test('gltf#loading', async (t) => {
+test.only('gltf#loading', async (t) => {
   // TODO - is gl argument used?
-  const gltf = await load('test/data/box.glb', GLTFLoader, {gl: webgl1Device.gl});
+  const gltf = await load('test/data/box.glb', GLTFLoader);
+
+  debugger
   const result = createGLTFObjects(webgl1Device, gltf);
 
   t.ok(result.hasOwnProperty('scenes'), 'Should contain scenes property');

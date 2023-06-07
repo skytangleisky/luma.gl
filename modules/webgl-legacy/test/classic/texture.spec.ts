@@ -226,7 +226,7 @@ function testFormatDeduction(t, glContext) {
     if (Texture2D.isSupported(glContext, {format: Number(format)})) {
       const texture = new Texture2D(glContext, options);
       const msg = `Texture2D({format: ${getKey(glContext, format)}}) created`;
-      t.equals(texture.format, Number(format), msg);
+      t.equals(texture.glFormat, Number(format), msg);
       t.equals(texture.type, expectedType, msg);
       t.equals(texture.dataFormat, expectedDataFormat, msg);
       texture.destroy();
@@ -496,10 +496,9 @@ test('WebGL2#Texture2D NPOT Workaround: setParameters', (t) => {
   t.end();
 });
 
-test.only('WebGL1#Texture2D setImageData', (t) => {
+test('WebGL1#Texture2D setImageData', (t) => {
   const {gl} = fixture;
 
-  debugger
   const texture = new Texture2D(gl, {data: null, width: 2, height: 1, mipmaps: false});
   t.deepEquals(readPixelsToArray(texture), new Float32Array(8), 'Pixels are empty');
 

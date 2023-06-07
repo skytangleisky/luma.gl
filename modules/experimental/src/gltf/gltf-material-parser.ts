@@ -8,13 +8,16 @@ import {GLTFEnvironment} from './gltf-environment';
 
 export type GLTFMaterialParserProps = {
   attributes: any;
-  material: any;
+  material?: any;
   pbrDebug?: boolean;
   imageBasedLightingEnvironment?: GLTFEnvironment;
-  lights: any;
+  lights?: any;
   useTangents?: boolean;
 };
 
+/** 
+ * Parses a GLTF material definition into uniforms and parameters for the PBR shader module 
+ */
 export class GLTFMaterialParser {
   readonly device: Device;
 

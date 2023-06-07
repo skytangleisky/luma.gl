@@ -6,7 +6,7 @@ import GL from '@luma.gl/constants';
 import {WebGLDevice} from '../webgl-device';
 import {WEBGLTexture} from './webgl-texture';
 import {WEBGLRenderbuffer} from '../objects/webgl-renderbuffer';
-import {convertTextureFormatToGL, getWebGLDepthStencilAttachment} from '../converters/texture-formats';
+import {getDepthStencilAttachmentWebGL} from '../converters/texture-formats';
 
 export type TextureAttachment = [Texture, number?, number?];
 export type Attachment = WEBGLTexture | WEBGLRenderbuffer | TextureAttachment;
@@ -53,7 +53,7 @@ export class WEBGLFramebuffer extends Framebuffer {
 
       if (this.props.depthStencilAttachment) {
         this._attachOne(
-          getWebGLDepthStencilAttachment(this.depthStencilAttachment.format),
+          getDepthStencilAttachmentWebGL(this.depthStencilAttachment.texture.format),
           this.depthStencilAttachment.texture as WEBGLTexture
         );
       }
@@ -92,11 +92,9 @@ export class WEBGLFramebuffer extends Framebuffer {
 
   /** In WebGL we must use renderbuffers for depth/stencil attachments (unless we have extensions) */
   protected override createDepthStencilTexture(attachment: Required<DepthStencilAttachment>): Texture {
-    const webglFormat = convertTextureFormatToGL(attachment.format, this.device.isWebGL2);
-
     return new WEBGLRenderbuffer(this.device, {
       id: `${this.id}-depth-stencil`, // TODO misleading if not depth and stencil?
-      format: webglFormat,
+      format: attachment.format,
       // dataFormat: GL.DEPTH_STENCIL,
       // type: GL.UNSIGNED_INT_24_8,
       width: this.width,

@@ -1,4 +1,4 @@
-import {Device} from '@luma.gl/api';
+import {Device, Buffer, RenderPass} from '@luma.gl/api';
 import {Model, ModelProps} from '@luma.gl/engine';
 import {ScenegraphNode, ScenegraphNodeProps} from './scenegraph-node';
 
@@ -17,15 +17,13 @@ export class ModelNode extends ScenegraphNode {
   onBeforeRender = null;
   onAfterRender = null;
 
-  constructor(deviceOrModel: Model | Device | WebGLRenderingContext, props: ModelNodeProps = {}) {
+  constructor(deviceOrModel: Model | Device, props: ModelNodeProps = {}) {
     super(props);
 
     // Create new Model or used supplied Model
     if (deviceOrModel instanceof Model) {
       this.model = deviceOrModel;
       this._setModelNodeProps(props);
-    } else if (deviceOrModel instanceof Device) {
-      this.model = new Model(deviceOrModel, props);
     } else {
       this.model = new Model(deviceOrModel, props);
     }
@@ -55,29 +53,29 @@ export class ModelNode extends ScenegraphNode {
   }
 
   // Expose model methods
-  draw(...args) {
+  draw(renderPass?: RenderPass) {
     // Return value indicates if something was actually drawn
-    return this.model.draw(...args);
+    return this.model.draw(renderPass);
   }
 
-  setUniforms(...args) {
-    this.model.setUniforms(...args);
+  setUniforms(uniforms: Record<string, any>): this {
+    this.model.setUniforms(uniforms);
     return this;
   }
 
-  setAttributes(...args) {
-    this.model.setAttributes(...args);
+  setAttributes(attributes: Record<string, Buffer>): this {
+    this.model.setAttributes(attributes);
     return this;
   }
 
-  updateModuleSettings(...args) {
-    this.model.updateModuleSettings(...args);
+  updateModuleSettings(moduleSettings: Record<string, any>) {
+    this.model.updateModuleSettings(moduleSettings);
     return this;
   }
 
   // PRIVATE
 
-  _setModelNodeProps(props) {
+  _setModelNodeProps(props: ModelNodeProps) {
     this.model.setProps(props);
   }
 }

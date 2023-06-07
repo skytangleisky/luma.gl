@@ -3,32 +3,25 @@ import {WebGLDevice} from '@luma.gl/webgl';
 import {GL, Texture2D, TextureCube} from '@luma.gl/webgl-legacy';
 import {loadImage} from '@loaders.gl/images';
 
-
 export type GLTFEnvironmentProps = {
-  brdfLutUrl: any;
-  getTexUrl: any;
+  brdfLutUrl: string;
+  getTexUrl: (name: string, dir: number, level: number) => string;
   specularMipLevels?: number;
 }
 
+/** Cubemap environment for PBR */
 export class GLTFEnvironment {
   // TODO - Use Device
   device: WebGLDevice;
-  brdfLutUrl: any;
-  getTexUrl: any;
-  specularMipLevels: number = 10;
+  brdfLutUrl: string;
+  getTexUrl: (name: string, dir: number, level: number) => string;
+  specularMipLevels: number;
 
-  _DiffuseEnvSampler;
-  _SpecularEnvSampler;
-  _BrdfTexture;
+  _DiffuseEnvSampler: TextureCube | null = null;
+  _SpecularEnvSampler: TextureCube | null = null;
+  _BrdfTexture: Texture2D | null = null;
 
-  constructor(
-    device: Device,
-    props: {
-      brdfLutUrl: any;
-      getTexUrl: any;
-      specularMipLevels?: number;
-    }
-  ) {
+  constructor(device: Device, props: GLTFEnvironmentProps) {
     this.device = WebGLDevice.attach(device);
     this.brdfLutUrl = props.brdfLutUrl;
     this.getTexUrl = props.getTexUrl;
@@ -57,7 +50,11 @@ export class GLTFEnvironment {
     this.destroy();
   }
 
-  makeCube({id, getTextureForFace, parameters}) {
+  makeCube({id, getTextureForFace, parameters}: {
+    id: string, 
+    getTextureForFace: (dir: number) => Promise<any> | Promise<any>[], 
+    parameters: Record<number, number>
+  }) {
     const pixels = {};
     TextureCube.FACES.forEach((face) => {
       pixels[face] = getTextureForFace(face);
@@ -70,7 +67,7 @@ export class GLTFEnvironment {
     });
   }
 
-  getDiffuseEnvSampler() {
+  getDiffuseEnvSampler(): TextureCube {
     if (!this._DiffuseEnvSampler) {
       this._DiffuseEnvSampler = this.makeCube({
         id: 'DiffuseEnvSampler',
@@ -87,11 +84,11 @@ export class GLTFEnvironment {
     return this._DiffuseEnvSampler;
   }
 
-  getSpecularEnvSampler() {
+  getSpecularEnvSampler(): TextureCube {
     if (!this._SpecularEnvSampler) {
       this._SpecularEnvSampler = this.makeCube({
         id: 'SpecularEnvSampler',
-        getTextureForFace: (dir) => {
+        getTextureForFace: (dir: number) => {
           const imageArray = [];
           for (let lod = 0; lod <= this.specularMipLevels - 1; lod++) {
             imageArray.push(loadImage(this.getTexUrl('specular', dir, lod)));
@@ -110,7 +107,7 @@ export class GLTFEnvironment {
     return this._SpecularEnvSampler;
   }
 
-  getBrdfTexture() {
+  getBrdfTexture(): Texture2D {
     if (!this._BrdfTexture) {
       this._BrdfTexture = new Texture2D(this.device, {
         id: 'brdfLUT',

@@ -142,10 +142,10 @@ export abstract class Texture extends Resource<TextureProps> {
 
   constructor(device: Device, props: TextureProps) {
     super(device, props, DEFAULT_TEXTURE_PROPS);
-    this.dimension = props.dimension;
-    this.format = props.format as TextureFormat;
-    this.width = props.width;
-    this.height = props.height;
-    this.depth = props.depth;
+    this.dimension = this.props.dimension;
+    this.format = this.props.format as TextureFormat;
+    this.width = this.props.width;
+    this.height = this.props.height;
+    this.depth = this.props.depth;
   }
 }

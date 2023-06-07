@@ -42,7 +42,7 @@ export default class ClassicTexture extends WEBGLTexture {
 
   constructor(device: Device | WebGLRenderingContext, props: ClassicTextureProps) {
     const webglDevice = WebGLDevice.attach(device);
-    super(webglDevice, {...props, format: convertGLToTextureFormat(props.format)});
+    super(webglDevice, {...props, format: convertGLToTextureFormat(props.format || GL.RGBA)});
   }
 
   // RESOURCE METHODS
