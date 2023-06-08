@@ -72,8 +72,9 @@ const TEXTURE_DATA = {
 // };
 
 function testFormatCreation(t, device: Device, withData: boolean = false) {
-  for (const [format, formatInfo] of Object.entries(TEXTURE_FORMATS)) {
-    if (device.isTextureFormatSupported(format)) {
+  for (const [textureFormat, formatInfo] of Object.entries(TEXTURE_FORMATS)) {
+    const format = textureFormat as TextureFormat;
+    if (device.isTextureFormatSupported(format )) {
       try {
         const data = withData ? TEXTURE_DATA[type] || DEFAULT_TEXTURE_DATA : null;
         // TODO: for some reason mipmap generation failing for RGB32F format
@@ -799,17 +800,8 @@ test.skip('WebGL#Texture3D construct/delete', (t) => {
 
 function getParameter(texture: Texture, pname: number): any {
   const webglTexture = cast<WEBGLTexture>(texture);
-  webglTexturegl.bindTexture(webglTexture.target, webglTexture.handle);
+  webglTexture.gl.bindTexture(webglTexture.target, webglTexture.handle);
   const value = webglTexture.gl.getTexParameter(webglTexture.target, pname);
   webglTexture.gl.bindTexture(webglTexture.target, null);
   return value;
-}
-
-function isFormatSupported(format, glContext) {
-  format = Number(format);
-  const opts = Object.assign({format}, TEXTURE_FORMATS[format]);
-  if (!device.isTextureFormatSupported({format}) || (!isWebGL2(glContext) && opts.compressed)) {
-    return false;
-  }
-  return true;
 }
