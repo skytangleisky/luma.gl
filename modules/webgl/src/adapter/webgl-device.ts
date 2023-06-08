@@ -418,6 +418,25 @@ ${this.info.vendor}, ${this.info.renderer} for canvas: ${this.canvasContext.id}`
     // eslint-disable-next-line camelcase
     handle.__SPECTOR_Metadata = props;
   }
+
+  /** 
+   * Returns the GL.<KEY> constant that corresponds to a numeric value of a GL constant
+   * Be aware that there are some duplicates especially for constants that are 0,
+   * so this isn't guaranteed to return the right key in all cases.
+   */
+  getGLKey(value: unknown, gl?: WebGLRenderingContext): string {
+    // @ts-ignore expect-error depends on settings 
+    gl = gl || this.gl2 || this.gl;
+    const number = Number(value);
+    for (const key in gl) {
+      // @ts-ignore expect-error depends on settings
+      if (gl[key] === number) {
+        return `GL.${key}`;
+      }
+    }
+    // No constant found. Stringify the value and return it.
+    return String(value);
+  }
 }
 
 /** Check if supplied parameter is a WebGLRenderingContext */

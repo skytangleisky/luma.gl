@@ -30,7 +30,33 @@ import {WebGLDevice} from '../webgl-device';
 import {WEBGLBuffer} from './webgl-buffer';
 import {WEBGLSampler} from './webgl-sampler';
 
-export type {TextureProps};
+export type WEBGLTextureProps = TextureProps & {
+  /** @deprecated use props.sampler */
+  parameters?: Record<number, number>;
+  /** @deprecated use props.data */
+  pixels?: any;
+  /** @deprecated use props.format */
+  dataFormat?: number | null;
+  /** @deprecated rarely supported */
+  border?: number;
+  /** @deprecated WebGL only. */
+  pixelStore?: object;
+  /** @deprecated WebGL only. */
+  textureUnit?: number;
+  /** @deprecated WebGL only. Use dimension. */
+  target?: number;
+};
+
+export const DEFAULT_WEBGL_TEXTURE_PROPS = {
+  // deprecated
+  parameters: {},
+  pixelStore: {},
+  pixels: null,
+  border: 0,
+  dataFormat: undefined!,
+  textureUnit: undefined!,
+  target: undefined!,
+};
 
 export type TextureSourceData = 
   TypedArray |
@@ -114,7 +140,7 @@ type SetImageData3DOptions = {
 
 
 // Polyfill
-export class WEBGLTexture extends Texture {
+export class WEBGLTexture extends Texture<WEBGLTextureProps> {
   // TODO - remove?
   static FACES: number[] = [
     GL.TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -165,8 +191,8 @@ export class WEBGLTexture extends Texture {
     lastTime: number;
   };
 
-  constructor(device: Device, props: TextureProps) {
-    super(device, {format: 'rgba8unorm', ...props});
+  constructor(device: Device, props: WEBGLTextureProps) {
+    super(device, {...DEFAULT_WEBGL_TEXTURE_PROPS, format: 'rgba8unorm', ...props});
 
     this.device = cast<WebGLDevice>(device);
     this.gl = this.device.gl;
@@ -205,7 +231,7 @@ export class WEBGLTexture extends Texture {
   }
 
   // eslint-disable-next-line max-statements
-  initialize(props: TextureProps = {}): this {
+  initialize(props: WEBGLTextureProps = {}): this {
     // Cube textures
     if (this.props.dimension === 'cube') {
       return this.initializeCube(props);
@@ -317,7 +343,7 @@ export class WEBGLTexture extends Texture {
     return this;
   }
 
-  initializeCube(props?: TextureProps): this {
+  initializeCube(props?: WEBGLTextureProps): this {
     const {mipmaps = true, parameters = {}  as Record<GL, any>} = props;
 
     // Store props for accessors
@@ -716,7 +742,7 @@ export class WEBGLTexture extends Texture {
 
   // HELPER METHODS
 
-  _deduceParameters(opts: TextureProps) {
+  _deduceParameters(opts: WEBGLTextureProps) {
     const {format, data} = opts;
     let {width, height, dataFormat, type, compressed} = opts;
 

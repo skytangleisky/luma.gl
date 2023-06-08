@@ -24,25 +24,8 @@ export type CubeTextureData =
 
 export type ExternalTextureData = HTMLVideoElement;
 
-export type DeprecatedWebGLTextureProps = {
-  /** @deprecated use props.sampler */
-  parameters?: Record<number, number>;
-  /** @deprecated use props.data */
-  pixels?: any;
-  /** @deprecated use props.format */
-  dataFormat?: number | null;
-  /** @deprecated rarely supported */
-  border?: number;
-  /** @deprecated WebGL only. */
-  pixelStore?: object;
-  /** @deprecated WebGL only. */
-  textureUnit?: number;
-  /** @deprecated WebGL only. Use dimension. */
-  target?: number;
-};
-
 /** Abstract Texture interface */
-export type TextureProps = ResourceProps & DeprecatedWebGLTextureProps & {
+export type TextureProps = ResourceProps & {
   format?: TextureFormat;
   dimension?: '1d' | '2d' | '2d-array' | 'cube' | 'cube-array' | '3d';
   width?: number | undefined;
@@ -78,6 +61,23 @@ export type TextureViewProps = {
   baseMipLevel?: number;
 };
 
+export type DeprecatedWebGLTextureProps = {
+  /** @deprecated use props.sampler */
+  parameters?: Record<number, number>;
+  /** @deprecated use props.data */
+  pixels?: any;
+  /** @deprecated use props.format */
+  dataFormat?: number | null;
+  /** @deprecated rarely supported */
+  border?: number;
+  /** @deprecated WebGL only. */
+  pixelStore?: object;
+  /** @deprecated WebGL only. */
+  textureUnit?: number;
+  /** @deprecated WebGL only. Use dimension. */
+  target?: number;
+};
+
 const DEFAULT_TEXTURE_PROPS: Required<TextureProps> = {
   ...DEFAULT_RESOURCE_PROPS,
   data: null,
@@ -92,14 +92,6 @@ const DEFAULT_TEXTURE_PROPS: Required<TextureProps> = {
   compressed: false,
   // mipLevels: 1,
   usage: 0,
-  parameters: {},
-  pixelStore: {},
-  pixels: null,
-  border: 0,
-  // deprecated
-  dataFormat: undefined!,
-  textureUnit: undefined!,
-  target: undefined!,
   mipLevels: undefined!,
   samples: undefined!,
   type: undefined!
@@ -118,7 +110,7 @@ const DEFAULT_TEXTURE_PROPS: Required<TextureProps> = {
  * Texture Object
  * https://gpuweb.github.io/gpuweb/#gputexture
  */
-export abstract class Texture extends Resource<TextureProps> {
+export abstract class Texture<Props extends TextureProps = TextureProps> extends Resource<Props> {
   static COPY_SRC = 0x01;
   static COPY_DST = 0x02;
   static TEXTURE_BINDING = 0x04;
@@ -140,8 +132,8 @@ export abstract class Texture extends Resource<TextureProps> {
   /** Default sampler for this texture */
   abstract sampler: Sampler;
 
-  constructor(device: Device, props: TextureProps) {
-    super(device, props, DEFAULT_TEXTURE_PROPS);
+  constructor(device: Device, props: Props, defaultProps = DEFAULT_TEXTURE_PROPS as Required<Props>) {
+    super(device, props, defaultProps);
     this.dimension = this.props.dimension;
     this.format = this.props.format as TextureFormat;
     this.width = this.props.width;

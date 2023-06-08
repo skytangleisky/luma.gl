@@ -6,7 +6,7 @@ import {isWebGL2, assertWebGLContext} from '../../context/context/webgl-checks';
 import {WebGLDevice} from '../webgl-device';
 
 // Requires full GL enum to be bundled... Make these bindings dependent on dynamic import (debug)?
-import {getKey, getKeyValue} from './constants-to-keys';
+import {getKeyValue} from './constants-to-keys';
 
 const ERR_RESOURCE_METHOD_UNDEFINED = 'Resource subclass must define virtual methods';
 
@@ -179,10 +179,10 @@ export abstract class WebGLResource<Props extends ResourceProps> extends Resourc
         (!('extension' in parameter) || this.gl.getExtension(parameter.extension));
 
       if (parameterAvailable) {
-        const key = keys ? getKey(this.gl, pname) : pname;
+        const key = keys ? this.device.getGLKey(pname) : pname;
         values[key] = this.getParameter(pname, options);
         if (keys && parameter.type === 'GLenum') {
-          values[key] = getKey(this.gl, values[key]);
+          values[key] = this.device.getGLKey(values[key]);
         }
       }
     }

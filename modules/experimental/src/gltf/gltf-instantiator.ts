@@ -9,7 +9,7 @@ import type {GLTFMaterialParserProps} from './gltf-material-parser';
 import {GLTFAnimator} from './gltf-animator';
 import {createGLTFModel} from './create-gltf-model';
 
-export type GLTFInstantiatorOptions = GLTFMaterialParserProps & {
+export type GLTFInstantiatorOptions = Omit<GLTFMaterialParserProps, 'attributes'> & {
   modelOptions?: Record<string, any>,
   pbrDebug?: boolean,
   imageBasedLightingEnvironment?: any,
