@@ -12,7 +12,7 @@ import {
 
 import Buffer from '../classic/buffer';
 import Texture2D from '../classic/texture-2d';
-import Framebuffer from '../classic/framebuffer';
+import {ClassicFramebuffer} from '../classic/framebuffer';
 import {readPixelsToArray} from '../classic/copy-and-blit';
 import {cloneTextureFrom} from '../webgl-utils/texture-utils';
 
@@ -33,7 +33,7 @@ type TextureBinding = {
   sourceBuffers: Record<string, Buffer>;
   sourceTextures: Record<string, Texture2D>;
   targetTexture: Texture2D;
-  framebuffer?: Framebuffer;
+  framebuffer?: ClassicFramebuffer;
 };
 
 export default class TextureTransform {
@@ -275,7 +275,7 @@ export default class TextureTransform {
         // Resize to new taget texture size
         framebuffer.resize({width, height});
       } else {
-        binding.framebuffer = new Framebuffer(this.gl, {
+        binding.framebuffer = new ClassicFramebuffer(this.gl, {
           id: 'transform-framebuffer',
           width,
           height,

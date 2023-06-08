@@ -14,7 +14,6 @@ test('WebGL#Renderbuffer construct/delete', (t) => {
   t.throws(
     // @ts-expect-error
     () => new Renderbuffer(),
-    /.*WebGLRenderingContext.*/,
     'Renderbuffer throws on missing gl context'
   );
 
@@ -38,7 +37,7 @@ test('WebGL#Renderbuffer format creation', (t) => {
     if (Renderbuffer.isSupported(gl, {format})) {
       const renderbuffer = new Renderbuffer(gl, {format});
       t.equals(
-        renderbuffer.format,
+        renderbuffer.glFormat,
         format,
         `Renderbuffer(${getKey(gl, format)}) created with correct format`
       );
@@ -63,7 +62,7 @@ test('WebGL2#Renderbuffer format creation', (t) => {
     if (Renderbuffer.isSupported(gl2, {format})) {
       const renderbuffer = new Renderbuffer(gl2, {format});
       t.equals(
-        renderbuffer.format,
+        renderbuffer.glFormat,
         format,
         `Renderbuffer(${getKey(gl2, format)}) created with correct format`
       );

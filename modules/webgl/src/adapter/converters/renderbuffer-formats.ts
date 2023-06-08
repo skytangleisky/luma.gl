@@ -36,7 +36,8 @@ type RenderbufferFormat = {
 
 export const RENDERBUFFER_FORMATS: Record<string, RenderbufferFormat> = {
   [GL.DEPTH_COMPONENT16]: {bpp: 2}, // 16 depth bits.
-  [GL.DEPTH_COMPONENT24]: {gl2: true, bpp: 3},
+  // TODO - Not clear which webgpu value to map this to.
+  // [GL.DEPTH_COMPONENT24]: {gl2: true, bpp: 3},
   [GL.DEPTH_COMPONENT32F]: {gl2: true, bpp: 4},
 
   [GL.STENCIL_INDEX8]: {bpp: 1}, // 8 stencil bits.
@@ -46,9 +47,9 @@ export const RENDERBUFFER_FORMATS: Record<string, RenderbufferFormat> = {
   [GL.DEPTH32F_STENCIL8]: {gl2: true, bpp: 5},
 
   // When using a WebGL 1 context, color renderbuffer formats are limited
-  [GL.RGBA4]: {bpp: 2},
-  [GL.RGB565]: {bpp: 2},
-  [GL.RGB5_A1]: {bpp: 2},
+  [GL.RGBA4]: {gl2: true, bpp: 2},
+  [GL.RGB565]: {gl2: true, bpp: 2},
+  [GL.RGB5_A1]: {gl2: true, bpp: 2},
 
   // When using a WebGL 2 context, the following values are available additionally:
   [GL.R8]: {gl2: true, bpp: 1},

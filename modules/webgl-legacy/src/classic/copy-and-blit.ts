@@ -8,7 +8,7 @@ import {glFormatToComponents, glTypeToBytes} from '../webgl-utils/format-utils';
 import {toFramebuffer} from '../webgl-utils/texture-utils';
 import Buffer from './buffer';
 import Texture from './texture';
-import Framebuffer from './framebuffer';
+import {ClassicFramebuffer} from './framebuffer';
 
 /**
  * Copies data from a type  or a Texture object into ArrayBuffer object.
@@ -21,7 +21,7 @@ import Framebuffer from './framebuffer';
  * @returns pixel array,
  */
 export function readPixelsToArray(
-  source: Framebuffer | Texture,
+  source: ClassicFramebuffer | Texture,
   options?: {
     sourceX?: number;
     sourceY?: number;
@@ -78,13 +78,13 @@ export function readPixelsToArray(
 }
 
 /**
- * Copies data from a Framebuffer or a Texture object into a Buffer object.
+ * Copies data from a ClassicFramebuffer or a Texture object into a Buffer object.
  * NOTE: doesn't wait for copy to be complete, it programs GPU to perform a DMA transffer.
  * @param source
  * @param options
  */
 export function readPixelsToBuffer(
-  source: Framebuffer | Texture,
+  source: ClassicFramebuffer | Texture,
   options?: {
     sourceX?: number;
     sourceY?: number;
@@ -140,7 +140,7 @@ export function readPixelsToBuffer(
   return target;
 }
 
-// Reads pixels from a Framebuffer or Texture object to a dataUrl
+// Reads pixels from a ClassicFramebuffer or Texture object to a dataUrl
 export function copyToDataUrl(
   source,
   options?: {
@@ -149,7 +149,7 @@ export function copyToDataUrl(
   }
 ): string;
 
-// Reads pixels from a Framebuffer or Texture object to a dataUrl
+// Reads pixels from a ClassicFramebuffer or Texture object to a dataUrl
 export function copyToDataUrl(
   source,
   {
@@ -181,10 +181,10 @@ export function copyToDataUrl(
   return canvas.toDataURL();
 }
 
-// Reads pixels from a Framebuffer or Texture object into an HTML Image
-// Reads pixels from a Framebuffer or Texture object into an HTML Image
+// Reads pixels from a ClassicFramebuffer or Texture object into an HTML Image
+// Reads pixels from a ClassicFramebuffer or Texture object into an HTML Image
 export function copyToImage(
-  source: Framebuffer | Texture,
+  source: ClassicFramebuffer | Texture,
   options?: {
     sourceAttachment?: number; // TODO - support gl.readBuffer
     targetImage?: typeof Image;
@@ -201,11 +201,11 @@ export function copyToImage(
 }
 
 /**
- * Copy a rectangle from a Framebuffer or Texture object into a texture (at an offset)
+ * Copy a rectangle from a ClassicFramebuffer or Texture object into a texture (at an offset)
  */
 // eslint-disable-next-line complexity, max-statements
 export function copyToTexture(
-  source: Framebuffer | Texture,
+  source: ClassicFramebuffer | Texture,
   target: Texture | GL,
   options?: {
     sourceX?: number;
@@ -318,7 +318,7 @@ export function copyToTexture(
 }
 
 /**
- * Copies a rectangle of pixels between Framebuffer or Texture objects
+ * Copies a rectangle of pixels between ClassicFramebuffer or Texture objects
  * @note NOTE: WEBLG2 only
  * @param source
  * @param target
@@ -390,7 +390,7 @@ export function blit(
   }
 
   if (deleteSrcFramebuffer || deleteDstFramebuffer) {
-    // Either source or destiantion was a texture object, which is wrapped in a Framebuffer objecgt as color attachment.
+    // Either source or destiantion was a texture object, which is wrapped in a ClassicFramebuffer objecgt as color attachment.
     // Overwrite the mask to `COLOR_BUFFER_BIT`
     if (mask & (GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT)) {
       mask = GL.COLOR_BUFFER_BIT;
@@ -439,11 +439,11 @@ export function blit(
 
 // Helper methods
 
-function getFramebuffer(source: Texture | Framebuffer): {
-  framebuffer: Framebuffer;
+function getFramebuffer(source: Texture | ClassicFramebuffer): {
+  framebuffer: ClassicFramebuffer;
   deleteFramebuffer: boolean;
 } {
-  if (!(source instanceof Framebuffer)) {
+  if (!(source instanceof ClassicFramebuffer)) {
     return {framebuffer: toFramebuffer(source), deleteFramebuffer: true};
   }
   return {framebuffer: source, deleteFramebuffer: false};

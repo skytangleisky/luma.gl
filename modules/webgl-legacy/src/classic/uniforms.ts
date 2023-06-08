@@ -1,10 +1,6 @@
 import {log, assert} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
-import {WEBGLTexture, WEBGLFramebuffer} from '@luma.gl/webgl';
-// import {Matrix4} from '@math.gl/core';
-// import Framebuffer from './framebuffer';
-import Renderbuffer from './renderbuffer';
-// import Texture from './texture';
+import {WEBGLTexture, WEBGLFramebuffer, WEBGLRenderbuffer} from '@luma.gl/webgl';
 
 type NumberUniformInfo = {
   type: 'number'
@@ -270,7 +266,7 @@ function checkUniformValue(value) {
     return true;
   } else if (value instanceof WEBGLTexture) {
     return true;
-  } else if (value instanceof Renderbuffer) {
+  } else if (value instanceof WEBGLRenderbuffer) {
     return true;
   } else if (value instanceof WEBGLFramebuffer) {
     return Boolean(value.texture);

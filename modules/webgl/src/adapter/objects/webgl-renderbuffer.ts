@@ -51,6 +51,9 @@ export class WEBGLRenderbuffer extends WebGLResource<RenderbufferProps> {
   }
 
   constructor(device: WebGLDevice, props: RenderbufferProps) {
+    if (typeof props.format === 'number') {
+      debugger;
+    }
     super(device, props, DEFAULT_RENDERBUFFER_PROPS);
     this.glFormat = convertTextureFormatToGL(this.props.format, device.isWebGL2);
     this._initialize(this.props);

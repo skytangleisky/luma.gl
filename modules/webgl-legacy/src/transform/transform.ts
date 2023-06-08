@@ -7,7 +7,7 @@ import {WebGLDevice, GLParameters} from '@luma.gl/webgl';
 // import {AccessorObject} from '@luma.gl/webgl';
 
 import type Buffer from '../classic/buffer';
-import type Framebuffer from '../classic/framebuffer';
+import type {ClassicFramebuffer} from '../classic/framebuffer';
 import {default as Texture2D} from '../classic/texture-2d';
 import {default as TransformFeedback} from '../classic/transform-feedback';
 import Model from '../engine/classic-model';
@@ -32,7 +32,7 @@ export type TransformProps = {
   isIndexed?: boolean;
   inject?: Record<string, string>;
   drawMode?: number;
-  framebuffer?: Framebuffer;
+  framebuffer?: ClassicFramebuffer;
   _sourceTextures?: Record<string, Texture2D>;
   _targetTexture?: string | Texture2D;
   _targetTextureVarying?: string;
@@ -43,7 +43,7 @@ export type TransformProps = {
 
 /** Options that can be provided when running a Transform */
 export type TransformRunOptions = {
-  framebuffer?: Framebuffer;
+  framebuffer?: ClassicFramebuffer;
   clearRenderTarget?: boolean;
   uniforms?: Record<string, any>;
   parameters?: Record<string, any>;
@@ -65,7 +65,7 @@ export type TransformBinding = {
   sourceTextures: Record<string, Texture2D>;
   feedbackBuffers?: Record<string, Buffer | {buffer: Buffer}>;
   transformFeedback?: TransformFeedback;
-  framebuffer?: Framebuffer;
+  framebuffer?: ClassicFramebuffer;
   targetTexture?: Texture2D;
 };
 
@@ -176,7 +176,7 @@ export default class Transform {
   }
 
   /** Return framebuffer object if rendering to textures */
-  getFramebuffer(): Framebuffer | null {
+  getFramebuffer(): ClassicFramebuffer | null {
     return this.textureTransform?.getFramebuffer() || null;
   }
 

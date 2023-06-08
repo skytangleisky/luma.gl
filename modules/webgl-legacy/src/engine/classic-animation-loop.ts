@@ -14,7 +14,7 @@ import {isBrowser} from '@probe.gl/env';
 
 import {isWebGL, resetParameters} from '@luma.gl/webgl';
 import {default as Query} from '../classic/query';
-import {default as Framebuffer} from '../classic/framebuffer';
+import {ClassicFramebuffer} from '../classic/framebuffer';
 
 type ContextProps = DeviceProps;
 
@@ -43,7 +43,7 @@ export type ClassicAnimationProps = AnimationProps & {
   /** @deprecated Use .device */
   gl: WebGLRenderingContext;
   /** @deprecated Will be removed */
-  framebuffer: Framebuffer;
+  framebuffer: ClassicFramebuffer;
 
   /** @deprecated Use .timeline */
   _timeline: Timeline;
@@ -115,7 +115,7 @@ export default class ClassicAnimationLoop {
 
   props: Required<ClassicAnimationLoopProps>;
   animationProps: ClassicAnimationProps;
-  framebuffer: Framebuffer = null;
+  framebuffer: ClassicFramebuffer = null;
   timeline: Timeline = null;
   stats: Stats;
   cpuTime: Stat;
@@ -698,7 +698,7 @@ export default class ClassicAnimationLoop {
   _createFramebuffer() {
     // Setup default framebuffer
     if (this.props.createFramebuffer) {
-      this.framebuffer = new Framebuffer(this.gl);
+      this.framebuffer = new ClassicFramebuffer(this.gl);
     }
   }
 

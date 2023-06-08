@@ -1,19 +1,18 @@
 import type {FramebufferProps} from '@luma.gl/api';
 import {Device, log, assert} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
-import {getWebGL2Context, assertWebGL2Context, WEBGLTexture} from '@luma.gl/webgl';
+import {getWebGL2Context, assertWebGL2Context} from '@luma.gl/webgl';
+import {WebGLDevice, WEBGLFramebuffer, WEBGLTexture, WEBGLRenderbuffer} from '@luma.gl/webgl';
 import {getKey} from '../webgl-utils/constants-to-keys';
-import Renderbuffer from './renderbuffer';
 import {clear, clearBuffer} from './clear';
 import Texture from './texture';
 // import {copyToDataUrl} from './copy-and-blit';
 
-import {WebGLDevice, WEBGLFramebuffer} from '@luma.gl/webgl';
 
 export type TextureAttachment = [Texture, number?, number?];
-export type Attachment = WEBGLTexture | Renderbuffer | TextureAttachment | null;
+export type Attachment = WEBGLTexture | WEBGLRenderbuffer | TextureAttachment | null;
 
-export type Attachments = Record<string, Attachment | Renderbuffer>;
+export type Attachments = Record<string, Attachment | WEBGLRenderbuffer>;
 
 const ERR_MULTIPLE_RENDERTARGETS = 'Multiple render targets not supported';
 
@@ -74,7 +73,7 @@ function getDefaultProps(props: ClassicFramebufferProps): FramebufferProps {
 }
 
 /** @deprecated Use device.createFramebuffer() */
-export default class ClassicFramebuffer extends WEBGLFramebuffer {
+export class ClassicFramebuffer extends WEBGLFramebuffer {
   attachments: Attachments = {};
   readBuffer = GL.COLOR_ATTACHMENT0;
   drawBuffers = [GL.COLOR_ATTACHMENT0];
@@ -288,7 +287,7 @@ export default class ClassicFramebuffer extends WEBGLFramebuffer {
   }
 
   update(options: {
-    attachments: Record<string, Attachment | Renderbuffer>,
+    attachments: Record<string, Attachment | WEBGLRenderbuffer>,
     readBuffer?: number,
     drawBuffers?: number[],
     clearAttachments?: boolean,
@@ -350,7 +349,6 @@ export default class ClassicFramebuffer extends WEBGLFramebuffer {
       if (!object) {
         this._unattach(attachment);
       } else {
-        // @ts-expect-error TODO looks like a valid type mismatch
         object = this._attachOne(attachment, object);
         this.attachments[attachment] = object;
       }
@@ -492,7 +490,7 @@ export default class ClassicFramebuffer extends WEBGLFramebuffer {
     if (!oldAttachment) {
       return;
     }
-    if (oldAttachment instanceof Renderbuffer) {
+    if (oldAttachment instanceof WEBGLRenderbuffer) {
       // render buffer
       this.gl.framebufferRenderbuffer(GL.FRAMEBUFFER, attachment, GL.RENDERBUFFER, null);
     } else {

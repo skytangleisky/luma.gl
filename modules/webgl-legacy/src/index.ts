@@ -70,9 +70,9 @@ export {default as TextureCube} from './classic/texture-cube';
 export type {ProgramProps} from './classic/program';
 export {default as Program} from './classic/program';
 export type {ClassicFramebufferProps as FramebufferProps} from './classic/framebuffer';
-export {default as Framebuffer} from './classic/framebuffer';
-export type {RenderbufferProps} from './classic/renderbuffer';
-export {default as Renderbuffer} from './classic/renderbuffer';
+export {ClassicFramebuffer as Framebuffer} from './classic/framebuffer';
+export type {ClassicRenderbufferProps as RenderbufferProps} from './classic/renderbuffer';
+export {ClassicRenderbuffer as Renderbuffer} from './classic/renderbuffer';
 
 // Classic luma.gl classes (For backwards compatibility)
 export type {ShaderProps} from './classic/shader';

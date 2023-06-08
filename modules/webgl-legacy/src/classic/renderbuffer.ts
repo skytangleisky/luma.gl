@@ -1,9 +1,11 @@
 /* eslint-disable no-inline-comments */
 import type {Device} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
-import {WebGLDevice, WEBGLRenderbuffer, RenderbufferProps} from '@luma.gl/webgl';
+import {WebGLDevice, WEBGLRenderbuffer, RenderbufferProps, convertGLToTextureFormat} from '@luma.gl/webgl';
 
-export type {RenderbufferProps}
+export type ClassicRenderbufferProps = Omit<RenderbufferProps, 'format'> & {
+  format: GL;
+}
 
 /**
  * Renderbuffers are GPU objects that contain images.
@@ -17,7 +19,7 @@ export type {RenderbufferProps}
  * 
  * @deprecated Use WEBGLRenderBuffer
  */
-export default class Renderbuffer extends WEBGLRenderbuffer {
+export class ClassicRenderbuffer extends WEBGLRenderbuffer {
   static override isSupported(device: Device | WebGLRenderingContext, options?: {format?: number}): boolean {
     const gl = WebGLDevice.attach(device).gl;
     return WEBGLRenderbuffer.isSupported(gl, options);
@@ -29,15 +31,16 @@ export default class Renderbuffer extends WEBGLRenderbuffer {
     return gl2.getInternalformatParameter(GL.RENDERBUFFER, options.format, GL.SAMPLES);
   }
 
-  constructor(device: Device | WebGLRenderingContext, props?: RenderbufferProps) {
-    const gl = WebGLDevice.attach(device).gl;
-    super(WebGLDevice.attach(gl), props);
+  constructor(device: Device | WebGLRenderingContext, props?: ClassicRenderbufferProps) {
+    const newProps: RenderbufferProps = {...props, format: convertGLToTextureFormat(props.format)};
+    super(WebGLDevice.attach(device), newProps);
   }
 
   /** Creates and initializes a renderbuffer object's data store */
   override initialize(props: RenderbufferProps): this {
     Object.assign(this.props, props);
-    this._initialize(this.props);
+    const newProps: Required<RenderbufferProps> = {...this.props, format: convertGLToTextureFormat(this.props.format)};
+    this._initialize(newProps);
     return this;
   }
 

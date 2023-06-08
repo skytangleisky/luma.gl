@@ -143,7 +143,7 @@ function testFramebuffer(t, gl) {
   }
 }
 
-test.only('WebGL1#Framebuffer attachments', (t) => {
+test('WebGL1#Framebuffer attachments', (t) => {
   const {gl} = fixture;
   testFramebuffer(t, gl);
   t.end();

@@ -86,25 +86,35 @@ type Format = {
   /** If a different unsized format is needed in WebGL1 */
   gl1?: GL;
   gl1ext?: string;
-  gl2ext?: string; // format requires WebGL2, when using a WebGL 1 context, color renderbuffer formats are limited
+  /** format requires WebGL2, when using a WebGL 1 context, color renderbuffer formats are limited */
+  gl2ext?: string;
 
-  b?: number; // (bytes per pixel), for memory usage calculations.
+  /** (bytes per pixel), for memory usage calculations. */
+  b?: number;
   /** channels */
   c?: number;
   bpp?: number;
   /** packed */
   p?: number;
-  x?: string; // compressed
-  f?: DeviceFeature; // for compressed texture formats
-  render?: DeviceFeature; // renderable if extension is present
+  /** compressed */
+  x?: string;
+  /** for compressed texture formats */
+  f?: DeviceFeature;
+  /** renderable if feature is present */
+  render?: DeviceFeature;
+  /** filterable if feature is present */
   filter?: DeviceFeature;
 
-  wgpu?: false; // If not supported on WebGPU
+  /** If not supported on WebGPU */
+  wgpu?: false;
 
   types?: number[];
 
   dataFormat?: GL;
+  /** Depth and stencil format attachment points. If set, needs to be a Renderbuffer unless depthTexture is set  */
   attachment?: GL.DEPTH_ATTACHMENT | GL.STENCIL_ATTACHMENT | GL.DEPTH_STENCIL_ATTACHMENT;
+  /** if depthTexture is set this is a depth/stencil format that can be set to a texture  */
+  depthTexture?: boolean;
 };
 
 // TABLES
@@ -232,13 +242,14 @@ export const TEXTURE_FORMATS: Record<TextureFormat, Format> = {
   'rgba32float': {gl: GL.RGBA32F, gl1: GL.RGBA, b: 16, c: 4, render: 'texture-renderable-float32-webgl', filter: 'texture-filter-linear-float32-webgl'},
 
   // Depth and stencil formats
-  'stencil8': {gl: GL.STENCIL_INDEX8, b: 1, c: 1, attachment: GL.STENCIL_ATTACHMENT}, // 8 stencil bits
+  'stencil8': {gl: GL.STENCIL_INDEX8, gl1: GL.STENCIL_INDEX8, b: 1, c: 1, attachment: GL.STENCIL_ATTACHMENT}, // 8 stencil bits
 
   'depth16unorm': {gl: GL.DEPTH_COMPONENT16, gl1: GL.DEPTH_COMPONENT16, b: 2, c: 1, attachment: GL.DEPTH_ATTACHMENT}, // 16 depth bits
   'depth24plus': {gl: GL.DEPTH_COMPONENT24, b: 3, c: 1, attachment: GL.DEPTH_ATTACHMENT},
   'depth32float': {gl: GL.DEPTH_COMPONENT32F, b: 4, c: 1, attachment: GL.DEPTH_ATTACHMENT},
 
-  'depth24plus-stencil8': {b: 4, gl: GL.UNSIGNED_INT_24_8, gl1: GL.DEPTH_STENCIL, c: 2, p: 1, attachment: GL.DEPTH_STENCIL_ATTACHMENT},
+  // The depth component of the "depth24plus" and "depth24plus-stencil8" formats may be implemented as either a 24-bit depth value or a "depth32float" value.
+  'depth24plus-stencil8': {gl: GL.DEPTH_STENCIL, gl1: GL.DEPTH_STENCIL, b: 4, c: 2, p: 1, attachment: GL.DEPTH_STENCIL_ATTACHMENT, depthTexture: true},
   // "depth24unorm-stencil8" feature
   'depth24unorm-stencil8': {gl: GL.DEPTH24_STENCIL8, b: 4, c: 2, p: 1, attachment: GL.DEPTH_STENCIL_ATTACHMENT},
   // "depth32float-stencil8" feature
@@ -349,17 +360,9 @@ export function convertGLToTextureFormat(format: GL | TextureFormat): TextureFor
 /**
  * Map WebGPU style texture format strings to GL constants
  */
-export function convertTextureFormatToGL(
-  formatOrGL: TextureFormat | GL,
-  isWebGL2: boolean
-): GL | undefined {
-  const format = convertGLToTextureFormat(formatOrGL);
+export function convertTextureFormatToGL(format: TextureFormat, isWebGL2: boolean): GL | undefined {
   const formatInfo = TEXTURE_FORMATS[format];
   const webglFormat = isWebGL2 ? formatInfo?.gl : formatInfo?.gl1;
-  // Remap or pass through
-  if (typeof format === 'number') {
-    return webglFormat || format;
-  }
   if (webglFormat === undefined) {
     throw new Error(`Unsupported texture format ${format}`);
   }
