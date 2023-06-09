@@ -1,6 +1,6 @@
 import {glsl} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
-import {clear, Transform} from '@luma.gl/webgl-legacy';
+import {Transform} from '@luma.gl/webgl-legacy';
 
 const INFO_HTML = `
 Animation via transform feedback.
@@ -90,20 +90,22 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     });
   }
 
-  override onFinalize() {
+  onFinalize() {
     this.transform.destroy();
     this.model.destroy();
   }
 
-  override onRender({device}) {
+  onRender({device}) {
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1]});
     this.transform.run();
     this.model.setAttributes({
       position: this.transform.getBuffer('vPosition')
     });
 
-    clear(device, {color: [0, 0, 0, 1]});
-    this.model.draw();
+    this.model.draw(renderPass);
 
     this.transform.swap();
+
+    renderPass.end();
   }
 }

@@ -58,7 +58,7 @@ const device.createFramebuffer({
   colorAttachments: {clearColor: [1, 0, 0]},
 })
 
-const device.createRenderPass({
+const device.beginRenderPass({
   parameters: {
 
   }
@@ -123,7 +123,7 @@ After the fragment shader runs, optional stencil tests are performed, with resul
 
 | Function                                                                                        | Sets parameters      |
 | ----------------------------------------------------------------------------------------------- | -------------------- |
-| clearColor | `createRenderPass({colorAttachments})` |
+| clearColor | `beginRenderPass({colorAttachments})` |
 
 ## Values
 

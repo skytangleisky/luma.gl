@@ -3,10 +3,46 @@
 
 ## How do I draw to the screen in luma.gl?
 
-`device.context.getDefaultFramebuffer()` returns a special framebuffer that lets you render to screen (into the swap chain). Simply create a `RenderPass` with this framebuffer and start rendering.
+Simply create a `RenderPass` and start rendering.
+
+```typescript
+  // A renderpass without parameters uses the default framebuffer of the device's default CanvasContext 
+  const renderPass = device.beginRenderPass();
+  model.draw();
+  renderPass.end();
+  device.submit();
+```
+
+`device.canvasContext.getDefaultFramebuffer()` returns a special framebuffer that lets you render to screen (into the swap chain). This framebuffer is used by default when a `device.beginRenderPass()` is called without providing a `framebuffer`, equivalent to: 
+
+```typescript
+  const renderPass = device.beginRenderPass({framebuffer: device.canvasContext.getDefaultFramebuffer()});
+  ...
+```
 
 ## How do I clear the screen in luma.gl?
 
-`Framebuffer` attachments are cleared by default when a RenderPass starts. More control are provided via the `clearColor` field on the attachments, by setting this the attachment will be cleared to the corresponding color. The default clear color is black [0, 0, 0, 0]. Clearing can also be disabled by setting `loadOp='load'`.
+`Framebuffer` attachments are cleared by default when a RenderPass starts. More control is provided via the `clearColor` parameter, setting this will clear the attachments to the corresponding color. The default clear color is fully transparent `[0, 0, 0, 0]`. Clearing can also be disabled by setting `loadOp='load'`.
+
+```typescript
+  const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1]});
+  model.draw();
+  renderPass.end();
+  device.submit();
+```
+
+Depth and stencil buffers are also cleared to default values:
+
+```typescript
+  const renderPass = device.beginRenderPass({
+    clearColor: [0, 0, 0, 1],
+    depthClearValue: 1,
+    stencilClearValue: 0
+  });
+  renderPass.end();
+  device.submit();
+```
+
+
 
 

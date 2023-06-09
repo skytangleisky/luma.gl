@@ -12,7 +12,6 @@ import {
 } from '@luma.gl/engine';
 // import {GL, readPixelsToArray} from '@luma.gl/webgl-legacy';
 import {picking as pickingBase, dirlight as dirlightBase} from '@luma.gl/shadertools';
-import {clear} from '@luma.gl/webgl-legacy';
 import {Matrix4, radians} from '@math.gl/core';
 
 const INFO_HTML = `
@@ -184,7 +183,7 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     }
 
     // Draw the cubes
-    clear(device, {color: [0, 0, 0, 1], depth: true});
+    const renderPass = device.beginRenderPass({color: [0, 0, 0, 1], depth: true});
     this.cube.setUniforms({
       uTime: this.timeline.getTime(timeChannel),
       // Basic projection matrix
@@ -201,7 +200,8 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
       // Rotate all the individual cubes
       uModel: new Matrix4().rotateX(tick * 0.01).rotateY(tick * 0.013)
     });
-    this.cube.draw();
+    this.cube.draw(renderPass);
+    renderPass.end();
   }
 
   onFinalize(animationProps: AnimationProps): void {

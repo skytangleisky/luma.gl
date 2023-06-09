@@ -186,8 +186,8 @@ export const TEXTURE_FORMATS: Record<TextureFormat, Format> = {
   'rgb5a1unorm-webgl': {gl: GL.RGB5_A1, b: 2, c: 4, wgpu: false},
 
   // 24-bit formats
-  'rbg8unorm-webgl': {gl: GL.RGB8, b: 3, c: 3, wgpu: false},
-  'rbg8snorm-webgl': {gl: GL.RGB8_SNORM, b: 3, c: 3, wgpu: false},
+  'rgb8unorm-webgl': {gl: GL.RGB8, b: 3, c: 3, wgpu: false},
+  'rgb8snorm-webgl': {gl: GL.RGB8_SNORM, b: 3, c: 3, wgpu: false},
 
   // 32-bit formats  
   'rgba8unorm': {gl: GL.RGBA8, gl1: GL.RGBA, b: 4, c: 2, bpp: 4},

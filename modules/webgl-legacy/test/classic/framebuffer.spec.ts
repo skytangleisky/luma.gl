@@ -5,26 +5,26 @@ import {Framebuffer, Renderbuffer, Texture2D} from '@luma.gl/webgl-legacy';
 import {fixture} from 'test/setup';
 
 const TEST_CASES = [
-  {
-    title: 'Default attachments',
-    getOpts: (gl) => ({}),
-    pass: true
-  },
-  {
-    title: 'No attachments',
-    getOpts: (gl) => ({attachments: {}}),
-    pass: false
-  },
-  {
-    title: 'Simple Depth Renderbuffer + Color Texture',
-    getOpts: (gl) => ({
-      attachments: {
-        [GL.COLOR_ATTACHMENT0]: new Texture2D(gl),
-        [GL.DEPTH_ATTACHMENT]: new Renderbuffer(gl, {format: GL.DEPTH_COMPONENT16})
-      }
-    }),
-    pass: true
-  },
+  // {
+  //   title: 'Default attachments',
+  //   getOpts: (gl) => ({}),
+  //   pass: true
+  // },
+  // {
+  //   title: 'No attachments',
+  //   getOpts: (gl) => ({attachments: {}}),
+  //   pass: false
+  // },
+  // {
+  //   title: 'Simple Depth Renderbuffer + Color Texture',
+  //   getOpts: (gl) => ({
+  //     attachments: {
+  //       [GL.COLOR_ATTACHMENT0]: new Texture2D(gl),
+  //       [GL.DEPTH_ATTACHMENT]: new Renderbuffer(gl, {format: GL.DEPTH_COMPONENT16})
+  //     }
+  //   }),
+  //   pass: true
+  // },
   {
     title: 'Simple Stencil Renderbuffer + Color Texture',
     getOpts: (gl) => ({

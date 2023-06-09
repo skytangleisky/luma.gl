@@ -434,8 +434,6 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
           gl.drawingBufferHeight * gl.drawingBufferHeight
       ) / 35;
 
-    clear(gl, {color: [0, 0, 0, 1], depth: true, framebuffer: this.sceneFramebuffer});
-
     this.projMat.perspective({fovy: radians(75), aspect, near: NEAR, far: FAR});
     this.viewMat.lookAt({eye: [3, 1.5, 3], center: [0, 0, 0], up: [0, 1, 0]});
 
@@ -454,18 +452,22 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
 
     // Draw cubes to scene framebuffer.
 
+    const framebufferRenderPass = device.beginRenderPass({color: [0, 0, 0, 1], depth: true, framebuffer: this.sceneFramebuffer});
+
     this.instancedCubes.draw({
+      renderPass: framebufferRenderPass,
       uniforms: {
         uProjection: this.projMat,
         uView: this.viewMat
       },
-      framebuffer: this.sceneFramebuffer
     });
+
+    framebufferRenderPass.end();
 
     // Apply DOF
 
     // Horizontal DOF blur
-    clear(device, {color: [0, 0, 0, 1], framebuffer: this.dofFramebuffer});
+    const horizontalDofRenderPass = device.beginRenderPass({color: [0, 0, 0, 1], framebuffer: this.dofFramebuffer});
 
     // texelOffset determines the direction of the blur
     texelOffset[0] = 1;
@@ -488,14 +490,16 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     });
 
     this.dofProgram.draw({
+      renderPass: horizontalDofRenderPass,
       vertexArray: this.quadVertexArray,
       drawMode: gl.TRIANGLE_STRIP,
-      vertexCount: 4,
-      framebuffer: this.dofFramebuffer
+      vertexCount: 4
     });
 
+    horizontalDofRenderPass.end();
+
     // Vertical DOF blur
-    clear(device, {color: [0, 0, 0, 1]});
+    const horizontalDofRenderPass = device.beginRenderPass({color: [0, 0, 0, 1]});
 
     texelOffset[0] = 0;
     texelOffset[1] = 1;
@@ -513,6 +517,8 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     });
 
     this.dofUniforms.unbind();
+
+    horizontalDofRenderPass.end();
   }
 }
 

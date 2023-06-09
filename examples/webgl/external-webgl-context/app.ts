@@ -1,5 +1,5 @@
 import {AnimationLoop, AnimationProps, Model} from '@luma.gl/webgl-legacy';
-import {Buffer, clear} from '@luma.gl/webgl-legacy';
+import {Buffer} from '@luma.gl/webgl-legacy';
 import {GLContextOptions, instrumentGLContext} from '@luma.gl/webgl-legacy';
 
 const INFO_HTML = `
@@ -20,8 +20,6 @@ export default class AppAnimationLoop extends AnimationLoop {
 
   //
   override onInitialize({gl}: AnimationProps) {
-    gl.clearColor(0, 0, 0, 1);
-
     const positionBuffer = new Buffer(gl, new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.0, 0.5]));
 
     const colorBuffer = new Buffer(
@@ -68,9 +66,10 @@ export default class AppAnimationLoop extends AnimationLoop {
     this.resources = resources;
   }
 
-  override onRender({gl}: AnimationProps) {
-    clear(gl, {color: [0, 0, 0, 1]});
-    this.resources.model.draw();
+  override onRender({device}: AnimationProps) {
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1]});
+    this.resources.model.draw(renderPass);
+    renderPass.end();
   }
 
   onDestroy() {

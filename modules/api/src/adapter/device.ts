@@ -287,7 +287,7 @@ export abstract class Device {
   /** Create a compute pipeline (aka program) */
   abstract createComputePipeline(props: ComputePipelineProps): ComputePipeline;
 
-  createCommandEncoder(props: CommandEncoderProps): CommandEncoder {
+  createCommandEncoder(props: CommandEncoderProps = {}): CommandEncoder {
     throw new Error('not implemented');
   }
 

@@ -3,7 +3,7 @@
 import {Device, log, luma} from '@luma.gl/api';
 import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps, Timeline} from '@luma.gl/engine';
 import {createGLTFObjects, GLTFEnvironment} from '@luma.gl/experimental';
-import {GL, clear} from '@luma.gl/webgl-legacy';
+import {GL} from '@luma.gl/webgl-legacy';
 
 import {parse} from '@loaders.gl/core';
 import {GLTFLoader} from '@loaders.gl/gltf';
@@ -289,7 +289,10 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   override onFinalize(animationProps: AnimationProps): void {}
 
   override onRender({device, time, aspect}) {
-    clear(device, {color: [0.2, 0.2, 0.2, 1.0], depth: true});
+    const renderPass = device.beginRenderPass({
+      color: [0.2, 0.2, 0.2, 1.0], 
+      depth: true
+    });
 
     const [pitch, roll] = this.rotation;
     const cameraPos = [
@@ -332,6 +335,8 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
         });
     });
 
+    renderPass.end();
+    
     return success;
   }
 

@@ -88,7 +88,7 @@ export class Model {
     this.pipeline.destroy();
   }
 
-  draw(renderPass?: RenderPass): this {
+  draw(renderPass: RenderPass): this {
     this.pipeline.draw({
       renderPass,
       vertexCount: this.vertexCount,

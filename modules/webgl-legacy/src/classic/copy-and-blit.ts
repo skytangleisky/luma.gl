@@ -59,7 +59,7 @@ export function readPixelsToArray(
   // assert(attachments[sourceAttachment]);
 
   // Deduce the type from color attachment if not provided.
-  sourceType = sourceType || (framebuffer.colorAttachments[attachment].texture as WEBGLTexture).type;
+  sourceType = sourceType || (framebuffer.colorAttachments[attachment] as WEBGLTexture).type;
 
   // Deduce type and allocated pixelArray if needed
   target = getPixelArray(target, sourceType, sourceFormat, sourceWidth, sourceHeight);

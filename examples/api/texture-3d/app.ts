@@ -2,7 +2,7 @@
 
 import {getRandom, glsl} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, Model} from '@luma.gl/engine';
-import {GL, setParameters, clear} from '@luma.gl/webgl-legacy';
+import {GL, setParameters} from '@luma.gl/webgl-legacy';
 import {Matrix4, radians} from '@math.gl/core';
 import {perlin, lerp, shuffle, range} from './perlin';
 
@@ -156,13 +156,14 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     this.mvpMat.perspective({fovy: radians(75), aspect, near: NEAR, far: FAR}).multiplyRight(this.viewMat);
 
     // Draw the cubes
-    clear(device, {color: [0, 0, 0, 1], depth: true});
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1], clearDepth: true});
     this.cloud.setProps({
       uniforms: {
         uTime: tick / 100,
         uMVP: this.mvpMat
       }
     });
-    this.cloud.draw();
+    this.cloud.draw(renderPass);
+    renderPass.end();
   }
 }

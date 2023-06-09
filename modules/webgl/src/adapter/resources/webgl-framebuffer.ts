@@ -1,6 +1,6 @@
 // luma.gl, MIT license
 
-import type {FramebufferProps, DepthStencilAttachment} from '@luma.gl/api';
+import type {FramebufferProps, TextureFormat} from '@luma.gl/api';
 import {Framebuffer, Texture, assert} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
 import {WebGLDevice} from '../webgl-device';
@@ -47,14 +47,14 @@ export class WEBGLFramebuffer extends Framebuffer {
         const attachment = this.colorAttachments[i];
         const attachmentPoint = GL.COLOR_ATTACHMENT0 + i;
         if (attachment) {
-          this._attachOne(attachmentPoint, attachment.texture as WEBGLTexture);
+          this._attachOne(attachmentPoint, attachment as WEBGLTexture);
         }
       }
 
-      if (this.props.depthStencilAttachment) {
+      if (this.depthStencilAttachment) {
         this._attachOne(
-          getDepthStencilAttachmentWebGL(this.depthStencilAttachment.texture.format),
-          this.depthStencilAttachment.texture as WEBGLTexture
+          getDepthStencilAttachmentWebGL(this.depthStencilAttachment.format),
+          this.depthStencilAttachment as WEBGLTexture
         );
       }
 
@@ -91,10 +91,10 @@ export class WEBGLFramebuffer extends Framebuffer {
   }
 
   /** In WebGL we must use renderbuffers for depth/stencil attachments (unless we have extensions) */
-  protected override createDepthStencilTexture(attachment: Required<DepthStencilAttachment>): Texture {
+  protected override createDepthStencilTexture(format: TextureFormat): Texture {
     return new WEBGLRenderbuffer(this.device, {
       id: `${this.id}-depth-stencil`, // TODO misleading if not depth and stencil?
-      format: attachment.format,
+      format: format,
       // dataFormat: GL.DEPTH_STENCIL,
       // type: GL.UNSIGNED_INT_24_8,
       width: this.width,
@@ -124,10 +124,10 @@ export class WEBGLFramebuffer extends Framebuffer {
     // TODO Not clear that this is better than default destroy/create implementation
 
     for (const colorAttachment of this.colorAttachments) {
-      (colorAttachment.texture as WEBGLTexture).resize({width, height});
+      (colorAttachment as WEBGLTexture).resize({width, height});
     }
     if (this.depthStencilAttachment) {
-      (this.depthStencilAttachment.texture as WEBGLTexture).resize({width, height});
+      (this.depthStencilAttachment as WEBGLTexture).resize({width, height});
     }
     return this;
   }

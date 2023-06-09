@@ -1,6 +1,9 @@
 import mapboxgl from 'mapbox-gl';
 import {AnimationProps} from '@luma.gl/engine';
-import {Buffer, ClassicModel as Model, ClassicAnimationLoop as AnimationLoop} from '@luma.gl/webgl-legacy';
+import {Buffer} from '@luma.gl/api';
+import {ClassicModel as Model, ClassicAnimationLoop as AnimationLoop} from '@luma.gl/webgl-legacy';
+// import {Model, AnimationLoop} from '@luma.gl/engine';
+import {WebGLDevice} from '@luma.gl/webgl';
 // import {instrumentGLContext} from '@luma.gl/webgl-legacy';
 
 const INFO_HTML = `
@@ -28,7 +31,6 @@ class CustomLayer {
   model: Model;
   
   onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext) {
-    // instrumentGLContext(gl);
     this.map = map;
 
     const vertexSource = `
@@ -61,11 +63,10 @@ class CustomLayer {
       positions[i * 2 + 1] = coords.y;
     });
 
-    this.positionBuffer = new Buffer(gl, new Float32Array(positions));
-    this.colorBuffer = new Buffer(
-      gl,
-      new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0])
-    );
+    const device = WebGLDevice.attach(gl);
+
+    this.positionBuffer = device.createBuffer(new Float32Array(positions));
+    this.colorBuffer = device.createBuffer(new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]));
 
     // Model to draw a triangle on the map
     this.model = new Model(gl, {
@@ -212,10 +213,4 @@ export default class AppAnimationLoop extends AnimationLoop {
   _removeContainer(props = {}) {
     this.parent.removeChild(this.container);
   }
-}
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  const animationLoop = new AppAnimationLoop();
-  animationLoop.start();
 }

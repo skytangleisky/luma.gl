@@ -46,7 +46,7 @@ import type {
   RenderPassProps,
   ComputePass,
   ComputePassProps,
-  CommandEncoder,
+  // CommandEncoder,
   CommandEncoderProps
 } from '@luma.gl/api';
 
@@ -334,7 +334,7 @@ ${this.info.vendor}, ${this.info.renderer} for canvas: ${this.canvasContext.id}`
     return this.renderPass;
   }
 
-  override createCommandEncoder(props: CommandEncoderProps): CommandEncoder {
+  override createCommandEncoder(props: CommandEncoderProps): WEBGLCommandEncoder {
     return new WEBGLCommandEncoder(this, props);
   }
 

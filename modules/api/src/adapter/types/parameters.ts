@@ -146,12 +146,16 @@ export type MultisampleParameters = {
   sampleAlphaToCoverageEnabled?: boolean; //  = false;
 };
 
-// These are set on the render pass encoder and are thus "cheaper" to change
+/** These parameters are set on the render pass and are thus "easier" to change frequently */
 export type RenderPassParameters = {
-  viewport: number[]; // float x, float y, float width, float height, float minDepth, float maxDepth
-  scissorRect: number[]; // (GPUIntegerCoordinate x, GPUIntegerCoordinate y, GPUIntegerCoordinate width, GPUIntegerCoordinate height);
-  blendConstant: number[]; // GPUColor
-  stencilReference: number; // GPUStencilValue
+  /** Linear map from normalized device coordinates to viewport coordinates [x, y, width, height, minDepth, maxDepth] */
+  viewport?: number[]; 
+  /** Sets scissor rectangle used during rasterization. Discards fragments outside viewport coords [x, y, width, height]. */
+  scissorRect?: number[]; // ;
+  /** Sets constant blend color and alpha values used with "constant" and "one-minus-constant" blend factors. */
+  blendConstant?: number[]; // GPUColor
+  /** Stencil operation "replace" sets the value to stencilReference */
+  stencilReference?: number; // GPUStencilValue
 };
 
 export type RenderPipelineParameters =

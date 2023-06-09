@@ -2,10 +2,8 @@ import {assert, ResourceProps, TextureFormat} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
 import {WebGLDevice} from '../webgl-device';
 import {WebGLResource} from './webgl-resource';
-import {
-  isRenderbufferFormatSupported, getRenderbufferFormatBytesPerPixel
-} from '../converters/renderbuffer-formats';
-import {convertTextureFormatToGL} from '../converters/texture-formats';
+import {isRenderbufferFormatSupported} from '../converters/renderbuffer-formats';
+import {convertTextureFormatToGL, getTextureFormatBytesPerPixel} from '../converters/texture-formats';
 
 export type RenderbufferProps = ResourceProps & {
   format: TextureFormat;
@@ -88,7 +86,7 @@ export class WEBGLRenderbuffer extends WebGLResource<RenderbufferProps> {
     this.gl.bindRenderbuffer(GL.RENDERBUFFER, null);
 
     this.trackAllocatedMemory(
-      width * height * (samples || 1) * getRenderbufferFormatBytesPerPixel(this.glFormat)
+      width * height * (samples || 1) * getTextureFormatBytesPerPixel(this.glFormat, this.device.isWebGL2)
     );
 
     return this;

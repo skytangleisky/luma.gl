@@ -1,7 +1,7 @@
 import {glsl} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, CubeGeometry, Model} from '@luma.gl/engine';
-import {clear, Transform} from '@luma.gl/webgl-legacy';
 import {phongLighting} from '@luma.gl/shadertools';
+import {Transform} from '@luma.gl/webgl-legacy';
 import {Matrix4} from '@math.gl/core';
 
 const INFO_HTML = `
@@ -186,16 +186,22 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   }
 
   override onRender({device, aspect}: AnimationProps) {
+    const renderPass = device.beginRenderPass({
+      clearColor: [0, 0, 0, 1], 
+      clearDepth: 1
+    });
+    
     this.projectionMatrix.perspective({fovy: Math.PI / 3, aspect});
 
     this.transform.run();
 
-    clear(device, {color: [0, 0, 0, 1], depth: true});
     this.model
       .setAttributes({instanceRotations: this.transform.getBuffer('vRotation')})
       .setUniforms({uProjection: this.projectionMatrix})
-      .draw();
+      .draw(renderPass);
 
     this.transform.swap();
+
+    renderPass.end();
   }
 }

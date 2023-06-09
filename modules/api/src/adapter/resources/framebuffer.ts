@@ -1,7 +1,6 @@
 // luma.gl, MIT license
 
-import type {ColorTextureFormat, DepthStencilTextureFormat} from '../types/texture-formats';
-import type {ColorAttachment, DepthStencilAttachment} from '../types/types';
+import type {ColorTextureFormat, DepthStencilTextureFormat, TextureFormat} from '../types/texture-formats';
 import type {Device} from '../device';
 import {Resource, ResourceProps, DEFAULT_RESOURCE_PROPS} from './resource';
 import {Texture} from './texture';
@@ -10,8 +9,8 @@ import {log} from '../../lib/utils/log';
 export type FramebufferProps = ResourceProps & {
   width?: number;
   height?: number;
-  colorAttachments?: (ColorAttachment | Texture | ColorTextureFormat)[];
-  depthStencilAttachment?: (Texture | DepthStencilAttachment | DepthStencilTextureFormat) | null;
+  colorAttachments?: (Texture | ColorTextureFormat)[];
+  depthStencilAttachment?: (Texture | DepthStencilTextureFormat) | null;
 };
 
 const DEFAULT_FRAMEBUFFER_PROPS: Required<FramebufferProps> = {
@@ -21,8 +20,6 @@ const DEFAULT_FRAMEBUFFER_PROPS: Required<FramebufferProps> = {
   colorAttachments: [], // ['rgba8unorm-unsized'],
   depthStencilAttachment: null // 'depth24plus-stencil8'
 };
-
-const ERR_ATTACHMENT_FORMAT = 'Framebuffer attachment has no valid texture';
 
 /**
  * Create new textures with correct size for all attachments.
@@ -38,19 +35,14 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
   /** Height of all attachments in this framebuffer */
   height: number;
   /** Color attachments */
-  colorAttachments: Required<ColorAttachment>[] = [];
+  colorAttachments: Texture[] = [];
   /** Depth-stencil attachment, if provided */
-  depthStencilAttachment: Required<DepthStencilAttachment> | null = null;
+  depthStencilAttachment: Texture | null = null;
 
   constructor(device: Device, props: FramebufferProps = {}) {
     super(device, props, DEFAULT_FRAMEBUFFER_PROPS);
     this.width = this.props.width;
     this.height = this.props.height;
-
-    this.colorAttachments = this.props.colorAttachments.map(attachment => this.normalizeColorAttachment(attachment));
-    if (this.props.depthStencilAttachment) {
-      this.depthStencilAttachment = this.normalizeDepthStencilAttachment(props.depthStencilAttachment);
-    }
 
     // NOTE: call from subclass constructor as we cannot call overridden methods here (subclass not yet constructed)
     // this.autoCreateAttachmentTextures();
@@ -77,101 +69,96 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
     }
   }
 
-  /** Returns fully populated attachment object. */
-  protected normalizeColorAttachment(
-    attachment: ColorAttachment | Texture | ColorTextureFormat
-  ): Required<ColorAttachment> {
+  // /** Returns fully populated attachment object. */
+  // protected normalizeColorAttachment(
+  //   attachment: Texture | ColorTextureFormat
+  // ): Required<ColorAttachment> {
 
-    const COLOR_ATTACHMENT_DEFAULTS: Required<ColorAttachment> = {
-      texture: undefined!,
-      format: undefined!,
-      clearValue: [0.0, 0.0, 0.0, 0.0],
-      loadOp: 'clear',
-      storeOp: 'store'
-    };
+  //   const COLOR_ATTACHMENT_DEFAULTS: Required<ColorAttachment> = {
+  //     texture: undefined!,
+  //     format: undefined!,
+  //     clearValue: [0.0, 0.0, 0.0, 0.0],
+  //     loadOp: 'clear',
+  //     storeOp: 'store'
+  //   };
 
-    if (attachment instanceof Texture) {
-      return {...COLOR_ATTACHMENT_DEFAULTS, texture: attachment};
-    }
-    if (typeof attachment === 'string') {
-      return {...COLOR_ATTACHMENT_DEFAULTS, format: attachment};
-    }
-    return {...COLOR_ATTACHMENT_DEFAULTS, ...attachment};
-  }
+  //   if (attachment instanceof Texture) {
+  //     return {...COLOR_ATTACHMENT_DEFAULTS, texture: attachment};
+  //   }
+  //   if (typeof attachment === 'string') {
+  //     return {...COLOR_ATTACHMENT_DEFAULTS, format: attachment};
+  //   }
+  //   return {...COLOR_ATTACHMENT_DEFAULTS, ...attachment};
+  // }
 
-  /** Wraps texture inside fully populated attachment object. */
-  protected normalizeDepthStencilAttachment(
-    attachment: DepthStencilAttachment | Texture | DepthStencilTextureFormat
-  ): Required<DepthStencilAttachment> {
-    const DEPTH_STENCIL_ATTACHMENT_DEFAULTS: Required<DepthStencilAttachment> = {
-      texture: undefined!,
-      format: undefined!,
+  // /** Wraps texture inside fully populated attachment object. */
+  // protected normalizeDepthStencilAttachment(
+  //   attachment: DepthStencilAttachment | Texture | DepthStencilTextureFormat
+  // ): Required<DepthStencilAttachment> {
+  //   const DEPTH_STENCIL_ATTACHMENT_DEFAULTS: Required<DepthStencilAttachment> = {
+  //     texture: undefined!,
+  //     format: undefined!,
 
-      depthClearValue: 1.0,
-      depthLoadOp: 'clear',
-      depthStoreOp: 'store',
-      depthReadOnly: false,
+  //     depthClearValue: 1.0,
+  //     depthLoadOp: 'clear',
+  //     depthStoreOp: 'store',
+  //     depthReadOnly: false,
 
-      stencilClearValue: 0,
-      stencilLoadOp: 'clear',
-      stencilStoreOp: 'store',
-      stencilReadOnly: false
-    };
+  //     stencilClearValue: 0,
+  //     stencilLoadOp: 'clear',
+  //     stencilStoreOp: 'store',
+  //     stencilReadOnly: false
+  //   };
 
-    if (typeof attachment === 'string') {
-      return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, format: attachment};
-    }
-    // @ts-expect-error attachment instanceof Texture doesn't cover Renderbuffer
-    if (attachment.handle || attachment instanceof Texture) {
-      return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, texture: attachment as Texture};
-    }
-    return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, ...attachment};
-  }
+  //   if (typeof attachment === 'string') {
+  //     return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, format: attachment};
+  //   }
+  //   // @ts-expect-error attachment instanceof Texture doesn't cover Renderbuffer
+  //   if (attachment.handle || attachment instanceof Texture) {
+  //     return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, texture: attachment as Texture};
+  //   }
+  //   return {...DEPTH_STENCIL_ATTACHMENT_DEFAULTS, ...attachment};
+  // }
 
   /** Auto creates any textures */
   protected autoCreateAttachmentTextures(){
-    this.colorAttachments = this.colorAttachments.map(attachment => {
-      if (attachment.texture) {
-        return attachment;
-      }
-      if (attachment.format) {
+    this.colorAttachments = this.props.colorAttachments.map(attachment => {
+      if (typeof attachment === 'string') {
         const texture = this.createColorTexture(attachment);
         this.attachResource(texture);
-        return {...attachment, texture}
+        return texture;
       }
-      throw new Error(ERR_ATTACHMENT_FORMAT);
+      return attachment;
     });
 
-    if (this.depthStencilAttachment) {
-      if (this.depthStencilAttachment.texture) {
-        return;
+    if (this.props.depthStencilAttachment) {
+      if (typeof this.props.depthStencilAttachment === 'string') {
+        const texture = this.createDepthStencilTexture(this.props.depthStencilAttachment);
+        this.attachResource(texture);
+        this.depthStencilAttachment = texture;
+      } else {
+        this.depthStencilAttachment = this.props.depthStencilAttachment;
       }
-      if (!this.depthStencilAttachment.format) {
-        throw new Error(ERR_ATTACHMENT_FORMAT);
-      }
-      const texture = this.createDepthStencilTexture(this.depthStencilAttachment);
-      this.attachResource(texture);
-      this.depthStencilAttachment = {...this.depthStencilAttachment, texture};
     }
   }
 
   /** Create a color texture */
-  protected createColorTexture(attachment: Required<ColorAttachment>): Texture {
+  protected createColorTexture(format: TextureFormat): Texture {
     return this.device.createTexture({
       id: 'color-attachment',
       usage: Texture.RENDER_ATTACHMENT,
-      format: attachment.format,
+      format: format,
       width: this.width,
       height: this.height,
     });
   }
 
   /** Create depth stencil texture */
-  protected createDepthStencilTexture(depthStencilAttachment: Required<DepthStencilAttachment>): Texture {
+  protected createDepthStencilTexture(format: TextureFormat): Texture {
     return this.device.createTexture({
       id: 'depth-stencil-attachment',
       usage: Texture.RENDER_ATTACHMENT,
-      format: depthStencilAttachment.format,
+      format: format,
       width: this.width,
       height: this.height
     });
@@ -186,24 +173,24 @@ export abstract class Framebuffer extends Resource<FramebufferProps> {
     for (let i = 0; i < this.colorAttachments.length; ++i) {
       if (this.colorAttachments[i]) {
         const resizedTexture = this.device._createTexture({
-          ...this.colorAttachments[i].texture.props,
+          ...this.colorAttachments[i].props,
           width,
           height
         });
-        this.destroyAttachedResource(this.colorAttachments[i].texture);
-        this.colorAttachments[i].texture = resizedTexture;
+        this.destroyAttachedResource(this.colorAttachments[i]);
+        this.colorAttachments[i] = resizedTexture;
         this.attachResource(resizedTexture);
       }
     }
 
     if (this.depthStencilAttachment) {
       const resizedTexture = this.device._createTexture({
-        ...this.depthStencilAttachment.texture.props,
+        ...this.depthStencilAttachment.props,
         width,
         height
       });
-      this.destroyAttachedResource(this.depthStencilAttachment.texture);
-      this.depthStencilAttachment.texture = resizedTexture;
+      this.destroyAttachedResource(this.depthStencilAttachment);
+      this.depthStencilAttachment = resizedTexture;
       this.attachResource(resizedTexture);
     }
   }

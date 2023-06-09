@@ -461,6 +461,7 @@ export default class Model {
 
     const didDraw = this.program.draw(
       Object.assign(DRAW_PARAMS, opts, {
+        renderPass: this.device.getDefaultRenderPass(),
         logPriority,
         uniforms: null, // Already set (may contain "function values" not understood by Program)
         framebuffer,

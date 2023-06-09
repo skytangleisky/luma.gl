@@ -1,6 +1,6 @@
 // luma.gl, MIT license
 
-import type {Device, RenderPipelineProps, RenderPipelineParameters} from '@luma.gl/api';
+import type {Device, RenderPipelineProps, RenderPipelineParameters, RenderPass} from '@luma.gl/api';
 import {log, assert, uid, cast, Shader} from '@luma.gl/api';
 import GL from '@luma.gl/constants';
 import {parseUniformName, getUniformSetter} from './uniforms';
@@ -31,6 +31,7 @@ export type ProgramProps = Omit<RenderPipelineProps, 'vs' | 'fs'> & {
 };
 
 export type ProgramDrawOptions = {
+  renderPass: RenderPass;
   logPriority?: number;
   drawMode?: number;
   vertexCount: any;

@@ -1,6 +1,5 @@
 import {glsl} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, Model, CubeGeometry, Timeline, KeyFrames} from '@luma.gl/engine';
-import {clear} from '@luma.gl/webgl-legacy';
 import {dirlight} from '@luma.gl/shadertools';
 import {Matrix4, radians} from '@math.gl/core';
 
@@ -188,7 +187,10 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     const modelMatrix = new Matrix4();
 
     // Draw the cubes
-    clear(device, {color: [0, 0, 0, 1], depth: true});
+    const renderPass = device.beginRenderPass({
+      clearColor: [0, 0, 0, 1], 
+      clearDepth: true
+    });
 
     for (const cube of this.cubes) {
       const startRotation = cube.keyFrames.getStartData();
@@ -204,7 +206,9 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
       cube.model.setUniforms({
         uModel: modelMatrix
       });
-      cube.model.draw();
+      cube.model.draw(renderPass);
+
+      renderPass.end();
     }
   }
 }

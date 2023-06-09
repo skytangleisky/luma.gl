@@ -1,6 +1,5 @@
 import {glsl} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps, Model, CubeGeometry} from '@luma.gl/engine';
-import {clear} from '@luma.gl/webgl-legacy';
 import {Matrix4} from '@math.gl/core';
 
 const INFO_HTML = `
@@ -61,7 +60,9 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     });
   }
 
-  override onRender({device, aspect, tick}: AnimationProps) {
+  onRender({device, aspect, tick}: AnimationProps) {
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1]});
+
     this.mvpMatrix
       .perspective({fovy: Math.PI / 3, aspect})
       .multiplyRight(this.viewMatrix)
@@ -69,11 +70,13 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
       .rotateY(tick * 0.013);
     this.model.setUniforms({uMVP: this.mvpMatrix});
 
-    clear(device, {color: [0, 0, 0, 1], depth: true});
-    this.model.draw();
+    this.model.draw(renderPass);
+
+    renderPass.end();
+    device.submit();
   }
 
-  override onFinalize() {
+  onFinalize() {
     this.model.destroy();
   }
 }

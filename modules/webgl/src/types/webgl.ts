@@ -250,6 +250,7 @@ export type GLFunctionParameters = {
 
   depthTest?: boolean;
   depthFunc?: GLFunction;
+  /** Specifies whether writing into the depth buffer is enabled. Default true, i.e. writing is enabled. */
   depthMask?: boolean;
   depthRange?: [number, number] | NumberArray;
 
@@ -272,6 +273,7 @@ export type GLFunctionParameters = {
   scissor?: [number, number, number, number] | NumberArray;
 
   stencilTest?: boolean;
+  /** Bit mask to enable or disable writing of individual bits in the stencil planes. By default, the mask is all 1. */
   stencilMask?: number | [number, number];
   stencilFunc?:
     | [GLFunction, number, number]

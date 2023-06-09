@@ -49,7 +49,7 @@ const framebuffer = device.createFramebuffer({
   colorAttachments: {clearColor: [1, 0, 0]},
 })
 
-const device.createRenderPass({
+const device.beginRenderPass({
   framebuffer,
   parameters: {
 
@@ -109,7 +109,7 @@ A `RenderPass` holds parameters specifying how color and depth / stencil attachm
 
 Note that there is no explicit `clear` function in the luma.gl v9 API. Instead attachments are cleared when a `RenderPass` is created (begins),
 
-`createRenderPass({framebuffer, parameters})`
+`beginRenderPass({framebuffer, parameters})`
 
 | Parameter            | Type          | Description                                                                                        |
 | -------------------- | ------------- | -------------------------------------------------------------------------------------------------- |

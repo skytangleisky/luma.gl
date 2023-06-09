@@ -1,6 +1,6 @@
 import {Buffer} from '@luma.gl/api';
 import {AnimationLoopTemplate, AnimationProps} from '@luma.gl/engine';
-import {clear, ClassicModel as Model, ProgramManager} from '@luma.gl/webgl-legacy';
+import {ClassicModel as Model, ProgramManager} from '@luma.gl/webgl-legacy';
 
 const INFO_HTML = `
 Modifying shader behavior with shader hooks
@@ -89,8 +89,9 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
   }
 
   override onRender({device}: AnimationProps) {
-    clear(device, {color: [0, 0, 0, 1]});
-    this.model1.draw();
-    this.model2.draw();
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1]});
+    this.model1.draw(renderPass);
+    this.model2.draw(renderPass);
+    renderPass.end();
   }
 }
