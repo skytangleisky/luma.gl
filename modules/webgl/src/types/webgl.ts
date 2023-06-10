@@ -235,6 +235,7 @@ export type GLFunctionParameters = {
   blend?: boolean;
   blendColor?: [number, number, number, number] | NumberArray;
   blendEquation?: GLBlendEquation | [GLBlendEquation, GLBlendEquation];
+  /* defines which function is used for blending pixel arithmetic. Defaults to one and zero */
   blendFunc?:
     | [GLBlendFunction, GLBlendFunction]
     | [GLBlendFunction, GLBlendFunction, GLBlendFunction, GLBlendFunction];
