@@ -3,8 +3,8 @@ export {Display} from './webvr/display';
 export {VRDisplay} from './webvr/vr-display';
 
 // glTF Scenegraph Instantiator
+export {createScenegraphsFromGLTF, createScenegraphsFromGLTF as createGLTFObjects} from './gltf/create-gltf-objects';
 export {GLTFEnvironment} from './gltf/gltf-environment';
-export {createGLTFObjects} from './gltf/create-gltf-objects';
 export {GLTFMaterialParser} from './gltf/gltf-material-parser';
 export {GLTFAnimator} from './gltf/gltf-animator';
 

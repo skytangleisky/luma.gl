@@ -13,7 +13,7 @@ import './disable-example-startup';
 import helloTriangle from '../../examples/getting-started/hello-triangle/app';
 import helloInstancing from '../../examples/getting-started/hello-instancing/app';
 import shaderModules from '../../examples/getting-started/shader-modules/app';
-import shaderHooks from '../../examples/getting-started/shader-hooks/app';
+// import shaderHooks from '../../examples/getting-started/shader-hooks/app';
 import transformFeedback from '../../examples/getting-started/transform-feedback/app';
 
 // API

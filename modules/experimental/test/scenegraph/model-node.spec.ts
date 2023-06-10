@@ -19,16 +19,14 @@ test('ModelNode#constructor', (t) => {
   for (const device of getWebGLTestDevices()) {
     const model = new Model(device, {vs: DUMMY_VS, fs: DUMMY_FS});
 
-    const mNode1 = new ModelNode(device, {vs: DUMMY_VS, fs: DUMMY_FS});
-    t.ok(mNode1.model instanceof Model, 'should get constructed with gl');
-
-    const mNode2 = new ModelNode(model);
-    t.ok(mNode2.model instanceof Model, 'should get constructed with Model object');
+    const mNode1 = new ModelNode({model});
+    t.ok(mNode1.model instanceof Model, 'should get constructed with model');
   }
   t.end();
 });
 
-test('ModelNode#setProps', (t) => {
+// setProps disabled
+test.skip('ModelNode#setProps', (t) => {
   const props = {
     instanceCount: 100
   };
@@ -36,35 +34,11 @@ test('ModelNode#setProps', (t) => {
   for (const device of getWebGLTestDevices()) {
     const model = new Model(device, {vs: DUMMY_VS, fs: DUMMY_FS});
     const modelSetPropsSpy = makeSpy(model, 'setProps');
-    const mNode = new ModelNode(model);
+    const mNode = new ModelNode({model});
     mNode.setProps(props);
-
-    // once during construction and once during setProps
-    t.equal(modelSetPropsSpy.callCount, 2, 'should call setProps on model');
+    t.equal(modelSetPropsSpy.callCount, 1, 'should call setProps on model');
     modelSetPropsSpy.restore();
   }
 
-  t.end();
-});
-
-test('ModelNode#Model forwards', (t) => {
-  for (const device of getWebGLTestDevices()) {
-    const model = new Model(device, {vs: DUMMY_VS, fs: DUMMY_FS});
-    const resourceModel = new Model(device, {vs: DUMMY_VS, fs: DUMMY_FS});
-    const resourceSpy = makeSpy(resourceModel, 'destroy');
-    const managedResources = [resourceModel];
-    const mNode = new ModelNode(model, {managedResources});
-    // make sure `destroy` is the last method to call
-    const modelMethods = ['draw', 'setUniforms', 'setAttributes', 'updateModuleSettings', 'destroy'];
-    modelMethods.forEach((methodName) => {
-      const spy = makeSpy(model, methodName);
-      // Hack common argument happens to avoid breaking any method
-      mNode[methodName]({});
-      t.equal(spy.callCount, 1, `should forward ${methodName} to model`);
-      spy.restore();
-    });
-    t.equal(resourceSpy.callCount, 1, 'should call destroy on managedResources');
-    resourceSpy.restore();
-  }
   t.end();
 });

@@ -1,6 +1,7 @@
 import {Device} from '@luma.gl/api';
 import {WebGLDevice} from '@luma.gl/webgl';
-import {GL, Texture2D, TextureCube} from '@luma.gl/webgl-legacy';
+import GL from '@luma.gl/constants';
+import {Texture2D, TextureCube} from '@luma.gl/webgl-legacy';
 import {loadImage} from '@loaders.gl/images';
 
 export type GLTFEnvironmentProps = {
@@ -46,7 +47,7 @@ export class GLTFEnvironment {
   }
 
   /** @deprecated */
-  delete() {
+  delete(): void {
     this.destroy();
   }
 
@@ -54,7 +55,7 @@ export class GLTFEnvironment {
     id: string, 
     getTextureForFace: (dir: number) => Promise<any> | Promise<any>[], 
     parameters: Record<number, number>
-  }) {
+  }): TextureCube {
     const pixels = {};
     TextureCube.FACES.forEach((face) => {
       pixels[face] = getTextureForFace(face);

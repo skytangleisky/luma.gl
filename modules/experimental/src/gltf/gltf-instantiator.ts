@@ -1,13 +1,13 @@
-import {Device, Buffer, log} from '@luma.gl/api';
+import {Device, Buffer, log, PrimitiveTopology} from '@luma.gl/api';
 import {WebGLDevice} from '@luma.gl/webgl';
 import {Accessor} from '@luma.gl/webgl-legacy';
+import {Model} from '@luma.gl/engine';
 import {Matrix4} from '@math.gl/core';
 import {GroupNode} from '../scenegraph/group-node';
 import {ModelNode} from '../scenegraph/model-node';
 
 import type {GLTFMaterialParserProps} from './gltf-material-parser';
 import {GLTFAnimator} from './gltf-animator';
-import {createGLTFModel} from './create-gltf-model';
 
 export type GLTFInstantiatorOptions = Omit<GLTFMaterialParserProps, 'attributes'> & {
   modelOptions?: Record<string, any>,
@@ -136,20 +136,22 @@ export class GLTFInstantiator {
       ? gltfPrimitive.indices.count
       : this.getVertexCount(gltfPrimitive.attributes);
 
-    const model = createGLTFModel(
+    const model = new Model(
       this.device,
       {
         id: gltfPrimitive.name || `${gltfMesh.name || gltfMesh.id}-primitive-${i}`,
-        drawMode: gltfPrimitive.mode || 4,
+        topology: convertGLDrawModeToTopology(gltfPrimitive.mode || 4),
         vertexCount,
         attributes: this.createAttributes(gltfPrimitive.attributes, gltfPrimitive.indices),
         material: gltfPrimitive.material,
         ...this.options
       }
     );
-    model.bounds = [gltfPrimitive.attributes.POSITION.min, gltfPrimitive.attributes.POSITION.max];
 
-    return model;
+    const modelNode = new ModelNode({model});
+    modelNode.bounds = [gltfPrimitive.attributes.POSITION.min, gltfPrimitive.attributes.POSITION.max];
+
+    return modelNode;
   }
 
   getVertexCount(attributes: any) {
@@ -220,5 +222,30 @@ export class GLTFInstantiator {
     // (NEAREST_MIPMAP_NEAREST, NEAREST_MIPMAP_LINEAR,
     // LINEAR_MIPMAP_NEAREST, or LINEAR_MIPMAP_LINEAR).
     return false;
+  }
+}
+
+enum GL {
+  POINTS = 0x0,
+  LINES = 0x1,
+  LINE_LOOP = 0x2,
+  LINE_STRIP = 0x3,
+  TRIANGLES = 0x4,
+  TRIANGLE_STRIP = 0x5,
+  TRIANGLE_FAN = 0x6
+}
+
+export function convertGLDrawModeToTopology(
+  drawMode: GL.POINTS | GL.LINES | GL.LINE_STRIP | GL.LINE_LOOP | GL.TRIANGLES | GL.TRIANGLE_STRIP | GL.TRIANGLE_FAN,
+): PrimitiveTopology  {
+  switch (drawMode) {
+    case GL.POINTS: return 'point-list';
+    case GL.LINES: return 'line-list';
+    case GL.LINE_STRIP: return 'line-strip';
+    case GL.LINE_LOOP: return 'line-loop';
+    case GL.TRIANGLES: return 'triangle-list';
+    case GL.TRIANGLE_STRIP: return 'triangle-strip';
+    case GL.TRIANGLE_FAN: return 'triangle-fan';
+    default: throw new Error(drawMode);
   }
 }

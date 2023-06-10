@@ -1,8 +1,12 @@
 <!doctype html>
-<script defer>  globalThis.global = globalThis;
-</script>
-<script type="module" defer>
-  import './app.ts';
+<script type="module">
+  import {WebGLDevice} from '@luma.gl/webgl';
+  import {luma} from '@luma.gl/api';
+  import {makeAnimationLoop} from '@luma.gl/engine';
+  import AppAnimationLoop from './app.ts';
+  luma.registerDevices([WebGLDevice]);
+  const animationLoop = makeAnimationLoop(AppAnimationLoop);
+  animationLoop.start();
 </script>
 <body>
 </body>

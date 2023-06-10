@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unresolved
 // import '@loaders.gl/polyfills'; // text-encoding polyfill for older MS browsers
 import {Device, log, luma} from '@luma.gl/api';
-import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps, Timeline} from '@luma.gl/engine';
+import {AnimationLoopTemplate, AnimationProps, Timeline} from '@luma.gl/engine';
 import {createGLTFObjects, GLTFEnvironment} from '@luma.gl/experimental';
 import {GL} from '@luma.gl/webgl-legacy';
 
@@ -193,21 +193,21 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     lastY: 0
   };
 
-  translate;
-  rotation = [0, 0];
-  rotationStart = [0, 0];
+  translate: number;
+  rotation: number[] = [0, 0];
+  rotationStart: number[] = [0, 0];
 
   u_ScaleDiffBaseMR = [0, 0, 0, 0];
   u_ScaleFGDSpec = [0, 0, 0, 0];
 
   timeline: Timeline = new Timeline();
-  timelineChannel;
+  timelineChannel: number;
   animationHandle: number;
   gltf;
   environment: GLTFEnvironment;
 
-  viewMatrix; 
-  projectionMatrix;
+  viewMatrix: Matrix4; 
+  projectionMatrix: Matrix4;
 
   light;
 
@@ -490,13 +490,4 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
       }
     });
   }
-}
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  makeAnimationLoop(AppAnimationLoopTemplate).start();
-
-  const infoDiv = document.createElement('div');
-  infoDiv.innerHTML = AppAnimationLoopTemplate.info;
-  document.body.appendChild(infoDiv);
 }

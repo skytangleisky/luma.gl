@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {Device, Framebuffer, getRandom, glsl} from '@luma.gl/api';
 import {
   makeAnimationLoop,
@@ -44,7 +43,7 @@ const dirlight = {
 };
 
 const vs = glsl`\
-attribute float instanceSizes;
+// // attribute float instanceSizes;
 attribute vec3 positions;
 attribute vec3 normals;
 attribute vec2 instanceOffsets;
@@ -70,7 +69,7 @@ void main(void) {
   // Vertex position (z coordinate undulates with time), and model rotates around center
   float delta = length(instanceOffsets);
   vec4 offset = vec4(instanceOffsets, sin((uTime + delta) * 0.1) * 16.0, 0);
-  gl_Position = uProjection * uView * (uModel * vec4(positions * instanceSizes, 1.0) + offset);
+  gl_Position = uProjection * uView * (uModel * vec4(positions * 1., 1.0) + offset);
 }
 `;
 
@@ -101,7 +100,7 @@ class InstancedCube extends Model {
 
     const offsets32 = new Float32Array(offsets);
 
-    const pickingColors = new Uint8ClampedArray(SIDE * SIDE * 2);
+    const pickingColors = new Float32Array(SIDE * SIDE * 2);
     for (let i = 0; i < SIDE; i++) {
       for (let j = 0; j < SIDE; j++) {
         pickingColors[(i * SIDE + j) * 2 + 0] = i;
@@ -126,14 +125,13 @@ class InstancedCube extends Model {
       vs,
       fs,
       modules: [dirlight, picking],
-      isInstanced: true,
       instanceCount: SIDE * SIDE,
       geometry: new CubeGeometry(),
       attributes: {
-        instanceSizes: new Float32Array([1]), // Constant attribute
-        instanceOffsets: [offsetsBuffer, {divisor: 1}],
-        instanceColors: [colorsBuffer, {divisor: 1}],
-        instancePickingColors: [pickingColorsBuffer, {divisor: 1}]
+        // instanceSizes: device.createBuffer(new Float32Array([1])), // Constant attribute
+        instanceOffsets: offsetsBuffer,
+        instanceColors: colorsBuffer,
+        instancePickingColors: pickingColorsBuffer,
       },
       parameters: {
         depthWriteEnabled: true,
@@ -183,7 +181,7 @@ export default class AppAnimationLoopTemplate extends AnimationLoopTemplate {
     }
 
     // Draw the cubes
-    const renderPass = device.beginRenderPass({color: [0, 0, 0, 1], depth: true});
+    const renderPass = device.beginRenderPass({clearColor: [0, 0, 0, 1], clearDepth: 1, clearStencil: 0});
     this.cube.setUniforms({
       uTime: this.timeline.getTime(timeChannel),
       // Basic projection matrix

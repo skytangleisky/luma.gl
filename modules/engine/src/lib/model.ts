@@ -11,6 +11,7 @@ export type ModelProps = Omit<RenderPipelineProps, 'vs' | 'fs'> & {
   // Model also accepts a string
   vs?: {glsl?: string; wgsl?: string} | string | null;
   fs?: {glsl?: string; wgsl?: string} | string | null;
+  defines?: Record<string, string | number | boolean>;
   modules?: ShaderModule[];
   moduleSettings?: Record<string, Record<string, any>>;
   geometry?: Geometry | null;
@@ -23,6 +24,7 @@ const DEFAULT_MODEL_PROPS: Required<ModelProps> = {
   id: 'unnamed',
   handle: undefined,
   userData: {},
+  defines: {},
   modules: [],
   moduleSettings: {},
   geometry: null
@@ -70,6 +72,7 @@ export class Model {
       vs: this.vs,
       fs: this.fs,
       topology: this.topology,
+      defines: props.defines,
       parameters: props.parameters,
       layout: props.layout
     });

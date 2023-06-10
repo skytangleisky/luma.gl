@@ -1,7 +1,7 @@
 /* eslint-enable camelcase */
 // import {Buffer} from '@luma.gl/api';
 import {getRandom, glsl} from '@luma.gl/api';
-import {makeAnimationLoop, AnimationLoopTemplate, AnimationProps} from '@luma.gl/engine';
+import {AnimationLoopTemplate, AnimationProps} from '@luma.gl/engine';
 import {picking} from '@luma.gl/shadertools';
 import {GL, Buffer, ClassicModel as Model, Transform, Framebuffer} from '@luma.gl/webgl-legacy';
 
@@ -311,8 +311,3 @@ function pickInstance(gl, pickX, pickY, model, framebuffer) {
   }
 }
 */
-
-// @ts-ignore
-if (typeof window !== 'undefined' && !window.website) {
-  makeAnimationLoop(AppAnimationLoopTemplate).start();
-}

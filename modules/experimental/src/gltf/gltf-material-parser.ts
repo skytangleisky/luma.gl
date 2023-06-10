@@ -1,7 +1,6 @@
-import type {Device, Texture} from '@luma.gl/api';
+import type {Device, Texture, Binding} from '@luma.gl/api';
 import {log} from '@luma.gl/api';
-
-import {GL} from '@luma.gl/webgl-legacy';
+import GL from '@luma.gl/constants';
 import {GLTFEnvironment} from './gltf-environment';
 
 /* eslint-disable camelcase */
@@ -22,8 +21,11 @@ export class GLTFMaterialParser {
   readonly device: Device;
 
   readonly defines: Record<string, number | boolean>;
+  readonly bindings: Record<string, Binding>;
   readonly uniforms: Record<string, any>;
   readonly parameters: Record<string, any>;
+
+  /** Hold on to generated textures, we destroy them in the destroy method */
   readonly generatedTextures: Texture[];
 
   constructor(device: Device, props: GLTFMaterialParserProps) {
@@ -47,13 +49,16 @@ export class GLTFMaterialParser {
       u_MetallicRoughnessValues: [1, 1] // Default is 1 and 1
     };
 
+    this.bindings = {
+    }
+
     this.parameters = {};
     this.generatedTextures = [];
 
     if (imageBasedLightingEnvironment) {
-      this.uniforms.u_DiffuseEnvSampler = imageBasedLightingEnvironment.getDiffuseEnvSampler();
-      this.uniforms.u_SpecularEnvSampler = imageBasedLightingEnvironment.getSpecularEnvSampler();
-      this.uniforms.u_brdfLUT = imageBasedLightingEnvironment.getBrdfTexture();
+      this.bindings.u_DiffuseEnvSampler = imageBasedLightingEnvironment.getDiffuseEnvSampler();
+      this.bindings.u_SpecularEnvSampler = imageBasedLightingEnvironment.getSpecularEnvSampler();
+      this.bindings.u_brdfLUT = imageBasedLightingEnvironment.getBrdfTexture();
       this.uniforms.u_ScaleIBLAmbient = [1, 1];
     }
 
@@ -77,18 +82,95 @@ export class GLTFMaterialParser {
     }
   }
 
-  defineIfPresent(value, name) {
+  /**
+   * Destroy all generated resources to release memory.
+   */
+  destroy(): void {
+    this.generatedTextures.forEach(texture => texture.destroy());
+  }
+
+  /**
+   * Destroy all generated resources to release memory.
+   * @deprecated use .destroy();
+   */
+  delete(): void {
+    this.destroy();
+  }
+
+  /** Add a define if the the value is non-nullish */
+  defineIfPresent(value: unknown, name: string): void {
     if (value) {
       this.defines[name] = 1;
     }
   }
 
-  parseTexture(gltfTexture, name, define = null) {
-    const parameters =
-      (gltfTexture.texture &&
-        gltfTexture.texture.sampler &&
-        gltfTexture.texture.sampler.parameters) ||
-      {};
+  /** Parse GLTF material record */
+  parseMaterial(material) {
+    this.uniforms.pbr_uUnlit = Boolean(material.unlit);
+
+    if (material.pbrMetallicRoughness) {
+      this.parsePbrMetallicRoughness(material.pbrMetallicRoughness);
+    }
+    if (material.normalTexture) {
+      this.addTexture(material.normalTexture, 'u_NormalSampler', 'HAS_NORMALMAP');
+
+      const {scale = 1} = material.normalTexture;
+      this.uniforms.u_NormalScale = scale;
+    }
+    if (material.occlusionTexture) {
+      this.addTexture(material.occlusionTexture, 'u_OcclusionSampler', 'HAS_OCCLUSIONMAP');
+
+      const {strength = 1} = material.occlusionTexture;
+      this.uniforms.u_OcclusionStrength = strength;
+    }
+    if (material.emissiveTexture) {
+      this.addTexture(material.emissiveTexture, 'u_EmissiveSampler', 'HAS_EMISSIVEMAP');
+      this.uniforms.u_EmissiveFactor = material.emissiveFactor || [0, 0, 0];
+    }
+    if (material.alphaMode === 'MASK') {
+      const {alphaCutoff = 0.5} = material;
+      this.defines.ALPHA_CUTOFF = 1;
+      this.uniforms.u_AlphaCutoff = alphaCutoff;
+    } else if (material.alphaMode === 'BLEND') {
+      log.warn('BLEND alphaMode might not work well because it requires mesh sorting')();
+      Object.assign(this.parameters, {
+        blend: true,
+        blendEquation: GL.FUNC_ADD,
+        blendFunc: [
+          GL.SRC_ALPHA,
+          GL.ONE_MINUS_SRC_ALPHA,
+          GL.ONE,
+          GL.ONE_MINUS_SRC_ALPHA
+        ]
+      });
+    }
+  }
+
+  /** Parse GLTF material sub record */
+  parsePbrMetallicRoughness(pbrMetallicRoughness) {
+    if (pbrMetallicRoughness.baseColorTexture) {
+      this.addTexture(
+        pbrMetallicRoughness.baseColorTexture,
+        'u_BaseColorSampler',
+        'HAS_BASECOLORMAP'
+      );
+    }
+    this.uniforms.u_BaseColorFactor = pbrMetallicRoughness.baseColorFactor || [1, 1, 1, 1];
+
+    if (pbrMetallicRoughness.metallicRoughnessTexture) {
+      this.addTexture(
+        pbrMetallicRoughness.metallicRoughnessTexture,
+        'u_MetallicRoughnessSampler',
+        'HAS_METALROUGHNESSMAP'
+      );
+    }
+    const {metallicFactor = 1, roughnessFactor = 1} = pbrMetallicRoughness;
+    this.uniforms.u_MetallicRoughnessValues = [metallicFactor, roughnessFactor];
+  }
+
+  /** Create a texture from a glTF texture/sampler/image combo and add it to bindings */
+  addTexture(gltfTexture, name, define = null) {
+    const parameters = gltfTexture?.texture?.sampler?.parameters || {};
 
     const image = gltfTexture.texture.source.image;
     let textureOptions;
@@ -115,77 +197,8 @@ export class GLTFMaterialParser {
       },
       ...textureOptions
     });
-    this.uniforms[name] = texture;
+    this.bindings[name] = texture;
     this.defineIfPresent(define, define);
     this.generatedTextures.push(texture);
-  }
-
-  parsePbrMetallicRoughness(pbrMetallicRoughness) {
-    if (pbrMetallicRoughness.baseColorTexture) {
-      this.parseTexture(
-        pbrMetallicRoughness.baseColorTexture,
-        'u_BaseColorSampler',
-        'HAS_BASECOLORMAP'
-      );
-    }
-    this.uniforms.u_BaseColorFactor = pbrMetallicRoughness.baseColorFactor || [1, 1, 1, 1];
-
-    if (pbrMetallicRoughness.metallicRoughnessTexture) {
-      this.parseTexture(
-        pbrMetallicRoughness.metallicRoughnessTexture,
-        'u_MetallicRoughnessSampler',
-        'HAS_METALROUGHNESSMAP'
-      );
-    }
-    const {metallicFactor = 1, roughnessFactor = 1} = pbrMetallicRoughness;
-    this.uniforms.u_MetallicRoughnessValues = [metallicFactor, roughnessFactor];
-  }
-
-  parseMaterial(material) {
-    this.uniforms.pbr_uUnlit = Boolean(material.unlit);
-
-    if (material.pbrMetallicRoughness) {
-      this.parsePbrMetallicRoughness(material.pbrMetallicRoughness);
-    }
-    if (material.normalTexture) {
-      this.parseTexture(material.normalTexture, 'u_NormalSampler', 'HAS_NORMALMAP');
-
-      const {scale = 1} = material.normalTexture;
-      this.uniforms.u_NormalScale = scale;
-    }
-    if (material.occlusionTexture) {
-      this.parseTexture(material.occlusionTexture, 'u_OcclusionSampler', 'HAS_OCCLUSIONMAP');
-
-      const {strength = 1} = material.occlusionTexture;
-      this.uniforms.u_OcclusionStrength = strength;
-    }
-    if (material.emissiveTexture) {
-      this.parseTexture(material.emissiveTexture, 'u_EmissiveSampler', 'HAS_EMISSIVEMAP');
-      this.uniforms.u_EmissiveFactor = material.emissiveFactor || [0, 0, 0];
-    }
-    if (material.alphaMode === 'MASK') {
-      const {alphaCutoff = 0.5} = material;
-      this.defines.ALPHA_CUTOFF = 1;
-      this.uniforms.u_AlphaCutoff = alphaCutoff;
-    } else if (material.alphaMode === 'BLEND') {
-      log.warn('BLEND alphaMode might not work well because it requires mesh sorting')();
-      Object.assign(this.parameters, {
-        blend: true,
-        blendEquation: GL.FUNC_ADD,
-        blendFunc: [
-          GL.SRC_ALPHA,
-          GL.ONE_MINUS_SRC_ALPHA,
-          GL.ONE,
-          GL.ONE_MINUS_SRC_ALPHA
-        ]
-      });
-    }
-  }
-
-  /**
-   * Destroy all generated resources to release memory.
-   */
-  delete(): void {
-    this.generatedTextures.forEach(texture => texture.destroy());
   }
 }

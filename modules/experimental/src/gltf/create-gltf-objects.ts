@@ -1,13 +1,24 @@
 import {Device} from '@luma.gl/api';
+import {ScenegraphNode} from '../scenegraph/scenegraph-node';
 import {GLTFInstantiator} from './gltf-instantiator';
 import {GLTFAnimator} from './gltf-animator';
+import {GLTFEnvironment} from './gltf-environment';
+import {GLTFMaterialParserProps} from './gltf-material-parser';
 
-export function createGLTFObjects(
+export type GLTFInstantiatorOptions = Omit<GLTFMaterialParserProps, 'attributes'> & {
+  modelOptions?: Record<string, any>,
+  pbrDebug?: boolean,
+  imageBasedLightingEnvironment?: GLTFEnvironment,
+  lights?: boolean,
+  useTangents?: boolean
+}
+
+export function createScenegraphsFromGLTF(
   device: Device,
   gltf: any,
-  options?: any
+  options?: GLTFInstantiatorOptions
 ): {
-  scenes: any;
+  scenes: ScenegraphNode[];
   animator: GLTFAnimator;
 } {
   const instantiator = new GLTFInstantiator(device, options);

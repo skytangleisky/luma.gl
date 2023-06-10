@@ -1,40 +1,31 @@
-import {Device, Buffer, RenderPass} from '@luma.gl/api';
-import {Model, ModelProps} from '@luma.gl/engine';
+import {Buffer, RenderPass} from '@luma.gl/api';
+import {Model} from '@luma.gl/engine';
 import {ScenegraphNode, ScenegraphNodeProps} from './scenegraph-node';
 
-export type ModelNodeProps = ScenegraphNodeProps & ModelProps & {
+export type ModelNodeProps = ScenegraphNodeProps & {
+  model: Model;
   managedResources?: any[];
+  bounds?: [number[], number[]];
 }
 
 export class ModelNode extends ScenegraphNode {
   readonly model: Model;
   bounds: [number[], number[]] | null = null;
-
-  AfterRender = null;
   managedResources: any[];
 
-  // override callbacks to make sure we call them with this
+  // TODO - is this used? override callbacks to make sure we call them with this
   onBeforeRender = null;
   onAfterRender = null;
+  AfterRender = null;
 
-  constructor(deviceOrModel: Model | Device, props: ModelNodeProps = {}) {
+  constructor(props: ModelNodeProps) {
     super(props);
 
     // Create new Model or used supplied Model
-    if (deviceOrModel instanceof Model) {
-      this.model = deviceOrModel;
-      this._setModelNodeProps(props);
-    } else {
-      this.model = new Model(deviceOrModel, props);
-    }
-
+    this.model = props.model;
     this.managedResources = props.managedResources || [];
-  }
-
-  override setProps(props: ModelNodeProps) {
-    super.setProps(props);
-    this._setModelNodeProps(props);
-    return this;
+    this.bounds = props.bounds || null;
+    this.setProps(props);
   }
 
   override getBounds(): [number[], number[]] | null {
@@ -47,7 +38,6 @@ export class ModelNode extends ScenegraphNode {
       // @ts-expect-error
       this.model = null;
     }
-
     this.managedResources.forEach((resource) => resource.destroy());
     this.managedResources = [];
   }
@@ -58,24 +48,18 @@ export class ModelNode extends ScenegraphNode {
     return this.model.draw(renderPass);
   }
 
-  setUniforms(uniforms: Record<string, any>): this {
-    this.model.setUniforms(uniforms);
-    return this;
-  }
+  // setUniforms(uniforms: Record<string, any>): this {
+  //   this.model.setUniforms(uniforms);
+  //   return this;
+  // }
 
-  setAttributes(attributes: Record<string, Buffer>): this {
-    this.model.setAttributes(attributes);
-    return this;
-  }
+  // setAttributes(attributes: Record<string, Buffer>): this {
+  //   this.model.setAttributes(attributes);
+  //   return this;
+  // }
 
-  updateModuleSettings(moduleSettings: Record<string, any>) {
-    this.model.updateModuleSettings(moduleSettings);
-    return this;
-  }
-
-  // PRIVATE
-
-  _setModelNodeProps(props: ModelNodeProps) {
-    this.model.setProps(props);
-  }
+  // updateModuleSettings(moduleSettings: Record<string, any>) {
+  //   this.model.updateModuleSettings(moduleSettings);
+  //   return this;
+  // }
 }

@@ -1,6 +1,7 @@
-import {Device, log} from '@luma.gl/api';
+import {Device, PrimitiveTopology, log} from '@luma.gl/api';
 import {pbr} from '@luma.gl/shadertools';
-import {ModelNode} from '../scenegraph/model-node';
+import {Model} from '@luma.gl/engine';
+import {ModelNode, ModelNodeProps} from '../scenegraph/model-node';
 import {GLTFMaterialParser, GLTFMaterialParserProps} from './gltf-material-parser';
 
 const vs = `
@@ -61,15 +62,15 @@ const fs = `
 `;
 
 export type CreateGLTFModelOptions = GLTFMaterialParserProps & {
-  id?;
-  drawMode?;
-  vertexCount?;
-  attributes?;
-  modelOptions?;
+  id?: string;
+  topology?: PrimitiveTopology;
+  vertexCount?: number;
+  attributes?: Record<string, any>;
+  modelOptions?: ModelNodeProps;
 };
 
 export function createGLTFModel(device: Device, options: CreateGLTFModelOptions): ModelNode {
-  const {id, drawMode, vertexCount, attributes, modelOptions} = options;
+  const {id, topology, vertexCount, attributes, modelOptions} = options;
   const materialParser = new GLTFMaterialParser(device, options);
 
   log.info(4, 'createGLTFModel defines: ', materialParser.defines)();
@@ -82,24 +83,23 @@ export function createGLTFModel(device: Device, options: CreateGLTFModelOptions)
   // @ts-expect-error
   managedResources.push(...Object.values(attributes).map((attribute) => attribute.buffer));
 
-  const model = new ModelNode(
-    device,
-    {
+  const model = new ModelNode({
+    managedResources,
+    model: new Model(device, {
       id,
-      drawMode,
+      topology,
       vertexCount,
       modules: [pbr],
       defines: materialParser.defines,
       parameters: materialParser.parameters,
       vs: addVersionToShader(device, vs),
       fs: addVersionToShader(device, fs),
-      managedResources,
+      attributes,
+      bindings: materialParser.bindings,
+      uniforms: materialParser.uniforms,
       ...modelOptions
-    }
-  );
-
-  model.setProps({attributes});
-  model.setUniforms(materialParser.uniforms);
+    })
+  });
 
   return model;
 }

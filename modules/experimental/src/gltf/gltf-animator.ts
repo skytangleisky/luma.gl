@@ -20,6 +20,66 @@ export const ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY = {
   5125: Uint32Array,
   5126: Float32Array
 };
+
+class GLTFAnimation {
+  startTime: number = 0;
+  playing: boolean = true;
+  speed: number = 1;
+  channels: any = [];
+
+  constructor(props) {
+    Object.assign(this, props);
+  }
+
+  animate(timeMs) {
+    if (!this.playing) {
+      return;
+    }
+
+    const absTime = timeMs / 1000;
+    const time = (absTime - this.startTime) * this.speed;
+
+    this.channels.forEach(({sampler, target, path}) => {
+      interpolate(time, sampler, target, path);
+      applyTranslationRotationScale(target, target._node);
+    });
+  }
+}
+
+export class GLTFAnimator {
+  animations: GLTFAnimation[];
+
+  constructor(gltf) {
+    this.animations = gltf.animations.map((animation, index) => {
+      const name = animation.name || `Animation-${index}`;
+      const samplers = animation.samplers.map(({input, interpolation = 'LINEAR', output}) => ({
+        input: accessorToJsArray(gltf.accessors[input]),
+        interpolation,
+        output: accessorToJsArray(gltf.accessors[output])
+      }));
+      const channels = animation.channels.map(({sampler, target}) => ({
+        sampler: samplers[sampler],
+        target: gltf.nodes[target.node],
+        path: target.path
+      }));
+      return new GLTFAnimation({name, channels});
+    });
+  }
+
+  /** @deprecated Use .setTime(). Will be removed (deck.gl is using this) */
+  animate(time: number): void {
+    this.setTime(time);
+  }
+
+  setTime(time: number): void {
+    this.animations.forEach((animation) => animation.animate(time));
+  }
+
+  getAnimations() {
+    return this.animations;
+  }
+}
+
 //
 
 function accessorToJsArray(accessor) {
@@ -159,64 +219,5 @@ function interpolate(time, {input, interpolation, output}, target, path) {
     default:
       log.warn(`Interpolation ${interpolation} not supported`)();
       break;
-  }
-}
-
-class GLTFAnimation {
-  startTime = 0;
-  playing = true;
-  speed = 1;
-  channels = [];
-
-  constructor(props) {
-    Object.assign(this, props);
-  }
-
-  animate(timeMs) {
-    if (!this.playing) {
-      return;
-    }
-
-    const absTime = timeMs / 1000;
-    const time = (absTime - this.startTime) * this.speed;
-
-    this.channels.forEach(({sampler, target, path}) => {
-      interpolate(time, sampler, target, path);
-      applyTranslationRotationScale(target, target._node);
-    });
-  }
-}
-
-export class GLTFAnimator {
-  animations;
-
-  constructor(gltf) {
-    this.animations = gltf.animations.map((animation, index) => {
-      const name = animation.name || `Animation-${index}`;
-      const samplers = animation.samplers.map(({input, interpolation = 'LINEAR', output}) => ({
-        input: accessorToJsArray(gltf.accessors[input]),
-        interpolation,
-        output: accessorToJsArray(gltf.accessors[output])
-      }));
-      const channels = animation.channels.map(({sampler, target}) => ({
-        sampler: samplers[sampler],
-        target: gltf.nodes[target.node],
-        path: target.path
-      }));
-      return new GLTFAnimation({name, channels});
-    });
-  }
-
-  // TODO(Tarek): This should be removed? (deck.gl is using this)
-  animate(time) {
-    this.setTime(time);
-  }
-
-  setTime(time) {
-    this.animations.forEach((animation) => animation.animate(time));
-  }
-
-  getAnimations() {
-    return this.animations;
   }
 }
