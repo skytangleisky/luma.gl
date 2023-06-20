@@ -26,8 +26,8 @@ function generateGLSLUniformDeclarations(module: ShaderModule, options: GLSLGene
       // ignore
   }
 
-  for (const [uniformName, uniformFormat] of Object.entries(module.uniformFormats || module.uniforms || {})) {
-    const glslUniformType = getGLSLUniformType(uniformFormat.format);
+  for (const [uniformName, uniformFormat] of Object.entries(module.uniformFormats || {})) {
+    const glslUniformType = getGLSLUniformType(uniformFormat);
     switch (options.uniforms) {
       case 'scoped-interface-blocks':
       // => uniform UniformBlockName {
