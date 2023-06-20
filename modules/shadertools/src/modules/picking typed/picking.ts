@@ -1,13 +1,14 @@
+/* eslint-disable camelcase */
 import {NumberArray} from '../../types';
 
 const DEFAULT_HIGHLIGHT_COLOR = new Uint8Array([0, 255, 255, 255]);
 
 export type PickingUniforms = {
-  pickingSelectedColor?: NumberArray | null, //  Set to a picking color to visually highlight that item
-  pickingHighlightColor?: NumberArray, // Color of visual highlight of "selected" item
-  pickingActive?: boolean, // Set to true when rendering to off-screen "picking" buffer
-  pickingAttribute: boolean // Set to true when picking an attribute value instead of object index
-}
+  pickingSelectedColor?: NumberArray | null; //  Set to a picking color to visually highlight that item
+  pickingHighlightColor?: NumberArray; // Color of visual highlight of "selected" item
+  pickingActive?: boolean; // Set to true when rendering to off-screen "picking" buffer
+  pickingAttribute: boolean; // Set to true when picking an attribute value instead of object index
+};
 
 const DEFAULT_MODULE_OPTIONS: Required<PickingUniforms> = {
   pickingSelectedColor: null, //  Set to a picking color to visually highlight that item
@@ -28,7 +29,7 @@ function getUniforms(opts = DEFAULT_MODULE_OPTIONS): Record<string, any> {
     }
   }
   if (opts.pickingHighlightColor) {
-    const color = Array.from(opts.pickingHighlightColor, (x) => x / 255);
+    const color = Array.from(opts.pickingHighlightColor, x => x / 255);
     if (!Number.isFinite(color[3])) {
       color[3] = 1;
     }
@@ -152,7 +153,7 @@ vec4 picking_filterColor(vec4 color) {
  * and correspondingly, supports picking and highlighting groups of
  * primitives with the same picking color in non-instanced draw-calls
  */
- export const picking = {
+export const picking = {
   name: 'picking',
   vs,
   fs,

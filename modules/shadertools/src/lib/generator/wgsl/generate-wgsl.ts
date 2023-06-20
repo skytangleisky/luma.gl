@@ -1,6 +1,5 @@
 // luma.gl, MIT license
 
-import {UniformFormat} from '../../../types';
 import {ShaderModule} from '../../../lib/shader-module/shader-module';
 import {capitalize} from '../utils/capitalize';
 
@@ -10,17 +9,20 @@ export function generateWGSLForModule(module: ShaderModule, options: WGSLGenerat
   return generateWGSLUniformDeclarations(module, options);
 }
 
-export function generateWGSLUniformDeclarations(module: ShaderModule, options: WGSLGenerationOptions) {
-  let wgsl: string[] = [];
+export function generateWGSLUniformDeclarations(
+  module: ShaderModule,
+  options: WGSLGenerationOptions
+) {
+  const wgsl: string[] = [];
 
   // => uniform UniformBlockName {
   wgsl.push(`struct ${capitalize(module.name)} {`);
 
   for (const [uniformName, uniformFormat] of Object.entries(module?.uniformFormats || {})) {
     const wgslUniformType = uniformFormat;
-        wgsl.push(`  ${uniformName} : ${wgslUniformType};`);
+    wgsl.push(`  ${uniformName} : ${wgslUniformType};`);
   }
-  wgsl.push(`};`);
+  wgsl.push('};');
 
   wgsl.push(`var<uniform> ${module.name} : ${capitalize(module.name)};`);
 

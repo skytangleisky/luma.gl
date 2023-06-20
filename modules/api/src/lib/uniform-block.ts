@@ -1,7 +1,7 @@
 // luma.gl, MIT license
 import type {NumberArray} from '../types';
 import {assert} from './utils/assert';
-import {log} from './utils/log';
+// import {log} from './utils/log';
 import {ShaderLayout, UniformBufferBindingLayout, UniformInfo} from '../adapter/types/shader-layout';
 
 type UniformValue = unknown;
@@ -105,7 +105,7 @@ function calculateSize(layout: Record<string, UniformInfo>) {
   return 256;
 }
 
-type Module2Uniforms = {
+export type Module2Uniforms = {
   uniform1: number;
   uniform2: [number, number];
 }

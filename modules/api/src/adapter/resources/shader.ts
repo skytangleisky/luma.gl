@@ -1,6 +1,6 @@
 // luma.gl, MIT license
 import type {Device} from '../device';
-import {Resource, ResourceProps, DEFAULT_RESOURCE_PROPS} from './resource';
+import {Resource, ResourceProps} from './resource';
 import {CompilerMessage} from '../../lib/compiler-log/compiler-message';
 
 /**

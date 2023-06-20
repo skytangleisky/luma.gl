@@ -13,31 +13,31 @@ export function generateGLSLForModule(module: ShaderModule, options: GLSLGenerat
 }
 
 function generateGLSLUniformDeclarations(module: ShaderModule, options: GLSLGenerationOptions) {
-  let glsl: string[] = [];
+  const glsl: string[] = [];
 
-    // => uniform UniformBlockName {
-    switch (options.uniforms) {
+  // => uniform UniformBlockName {
+  switch (options.uniforms) {
     case 'scoped-interface-blocks':
     case 'unscoped-interface-blocks':
       glsl.push(`uniform ${capitalize(module.name)} {`);
       break;
     case 'uniforms':
-      // ignore
+    // ignore
   }
 
   for (const [uniformName, uniformFormat] of Object.entries(module?.uniformFormats || {})) {
     const glslUniformType = getGLSLUniformType(uniformFormat);
     switch (options.uniforms) {
-    case 'scoped-interface-blocks':
-      // => uniform UniformBlockName {
+      case 'scoped-interface-blocks':
+        // => uniform UniformBlockName {
         glsl.push(`  ${glslUniformType} ${uniformName};`);
         break;
-    case 'unscoped-interface-blocks':
-      // => uniform UniformBlockName {
-      glsl.push(`  ${glslUniformType} ${module.name}_${uniformName};`);
-      break;
-    case 'uniforms':
-      glsl.push(`uniform ${glslUniformType} ${module.name}_${uniformName};`);
+      case 'unscoped-interface-blocks':
+        // => uniform UniformBlockName {
+        glsl.push(`  ${glslUniformType} ${module.name}_${uniformName};`);
+        break;
+      case 'uniforms':
+        glsl.push(`uniform ${glslUniformType} ${module.name}_${uniformName};`);
     }
   }
 
@@ -46,10 +46,10 @@ function generateGLSLUniformDeclarations(module: ShaderModule, options: GLSLGene
       glsl.push(`} ${module.name};`);
       break;
     case 'unscoped-interface-blocks':
-      glsl.push(`};`);
+      glsl.push('};');
       break;
     case 'uniforms':
-      // ignore
+    // ignore
   }
 
   // final new line
@@ -58,13 +58,12 @@ function generateGLSLUniformDeclarations(module: ShaderModule, options: GLSLGene
   return glsl.join('\n');
 }
 
-
 /** Map a luma.gl WebGPU style uniform type to GLSL */
 function getGLSLUniformType(uniformFormat: UniformFormat): string {
   const UNIFORM_TYPE_TO_GLSL: Record<UniformFormat, string> = {
-    'f32': 'float',
-    'i32': 'int',
-    'u32': 'uint',
+    f32: 'float',
+    i32: 'int',
+    u32: 'uint',
     'vec2<f32>': 'vec2',
     'vec3<f32>': 'vec3',
     'vec4<f32>': 'vec4',
@@ -82,10 +81,9 @@ function getGLSLUniformType(uniformFormat: UniformFormat): string {
     'mat3x4<f32>': 'mat3x4',
     'mat4x2<f32>': 'mat4x2',
     'mat4x3<f32>': 'mat4x3',
-    'mat4x4<f32>': 'mat4',
+    'mat4x4<f32>': 'mat4'
   };
-  
+
   const glsl = UNIFORM_TYPE_TO_GLSL[uniformFormat];
   return glsl;
 }
-
